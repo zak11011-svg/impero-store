@@ -217,7 +217,11 @@ p{margin:0}
   padding:30px 24px 26px;display:flex;flex-direction:column;text-align:center;
   transition:border-color .55s var(--ease),transform .55s var(--ease);
 }
+.card{cursor:pointer}
 .card:hover{border-color:var(--line-gold);transform:translateY(-4px)}
+.card .btn.is-out{opacity:.4}
+.card:hover .btn{background:var(--gold);color:var(--ink)}
+.card:hover .btn.is-out{background:transparent;color:var(--gold)}
 .card-img{position:relative;display:flex;justify-content:center;align-items:flex-end;height:270px;margin-bottom:26px}
 .card-img img{max-height:100%;width:auto;transition:transform .8s var(--ease);filter:drop-shadow(0 26px 34px rgba(0,0,0,.6))}
 .card:hover .card-img img{transform:scale(1.05)}
@@ -233,8 +237,15 @@ p{margin:0}
 .stock-tag.low{color:var(--gold-soft)}
 .stock-tag.out{color:var(--red)}
 
-.swatch-row{display:flex;gap:7px;justify-content:center;margin-bottom:18px}
-.sw{width:13px;height:13px;border-radius:50%;border:1px solid rgba(255,255,255,.22);display:inline-block}
+.swatch-row{display:flex;gap:12px;justify-content:center;margin-bottom:18px}
+.sw{
+  width:22px;height:22px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.22);display:inline-block;
+  padding:0;cursor:pointer;position:relative;
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+}
+.sw:hover{transform:scale(1.1)}
+.sw.on{box-shadow:0 0 0 1px var(--ink),0 0 0 2px var(--gold)}
 
 /* ---------- statement band ---------- */
 .band{position:relative;min-height:74svh;display:flex;align-items:flex-end;overflow:hidden}
@@ -443,7 +454,7 @@ tr:last-child td{border-bottom:0}
     </a>
     <nav class="nav" aria-label="Main">
       <a href="#collection">Collection</a>
-      <a href="#about">About</a>
+      <a href="about.html">About</a>
       <a href="#contact">Contact</a>
     </nav>
     <div class="h-actions">
@@ -458,7 +469,7 @@ tr:last-child td{border-bottom:0}
   </div>
   <nav class="mnav" id="mnav" aria-label="Mobile">
     <a href="#collection">Collection</a>
-    <a href="#about">About</a>
+    <a href="about.html">About</a>
     <a href="#contact">Contact</a>
   </nav>
 </header>
@@ -543,16 +554,6 @@ tr:last-child td{border-bottom:0}
     </div>
   </section>
 
-  <!-- ABOUT -->
-  <section class="section" id="about" style="padding-top:0">
-    <div class="shell" style="max-width:760px;text-align:center">
-      <hr class="rule-gold rv" style="margin:0 auto 34px;width:120px;background:var(--gold)">
-      <h2 class="h2 rv">Espresso belongs<br>to the moment,<br>not the kitchen.</h2>
-      <p class="lede rv rv-2" style="margin:26px auto 34px">Coffee Impero builds portable machines that carry their own heat and their own power.</p>
-      <a class="btn rv rv-2" href="#collection">Shop collection</a>
-    </div>
-  </section>
-
   <!-- CONTACT -->
   <section class="section" id="contact" style="border-top:1px solid var(--line)">
     <div class="shell" style="text-align:center">
@@ -587,7 +588,7 @@ tr:last-child td{border-bottom:0}
         <h4>Contact</h4>
         <ul>
           <li><a href="mailto:info@coffeeimpero.com">info@coffeeimpero.com</a></li>
-          <li><a href="#about">About</a></li>
+          <li><a href="about.html">About</a></li>
         </ul>
       </div>
     </div>
@@ -799,23 +800,39 @@ tr:last-child td{border-bottom:0}
       var st=stockState(p);
       var c0=(p.colors&&p.colors[0])||{};
       var img=pic(p.id,c0.name,c0.img);
-      var dots=(p.colors||[]).map(function(c){
-        return '<span class="sw" style="background:'+esc(c.hex)+'" title="'+esc(c.name)+'"></span>';
+      var dots=(p.colors||[]).map(function(c,i){
+        return '<button type="button" class="sw'+(i===0?' on':'')+'" style="background:'+esc(c.hex)+'"'+
+               ' data-pid="'+esc(p.id)+'" data-sw="'+esc(c.name)+'"'+
+               ' aria-label="'+esc(c.name)+'" title="'+esc(c.name)+'"></button>';
       }).join("");
       return ''+
-      '<article class="card rv">'+
+      '<article class="card rv" data-open="'+esc(p.id)+'" role="button" tabindex="0" aria-label="View '+esc(p.name)+'">'+
         '<div class="card-img"><img src="'+esc(img)+'" alt="'+esc(p.name)+'" loading="lazy"></div>'+
         '<h3>'+esc(p.name).toUpperCase()+'</h3>'+
         '<div class="card-spec">'+esc(p.pressure)+' &middot; '+esc(p.coffee_type)+'</div>'+
         '<div class="swatch-row">'+dots+'</div>'+
         '<div class="card-price">'+money(p.price)+'</div>'+
         '<div class="stock-tag '+st.cls+'">'+esc(st.label)+'</div>'+
-        '<button class="btn btn-block" data-open="'+esc(p.id)+'"'+(st.sellable?'':' disabled')+'>'+
-          (st.sellable?'Select':'Sold out')+'</button>'+
+        '<span class="btn btn-block'+(st.sellable?'':' is-out')+'">'+
+          (st.sellable?'View':'Sold out')+'</span>'+
       '</article>';
     }).join("");
+    // tapping a dot swaps the picture on the card itself
+    g.querySelectorAll("[data-sw]").forEach(function(d){
+      d.addEventListener("click", function(ev){
+        ev.stopPropagation();
+        var card = d.closest(".card");
+        var im = card.querySelector(".card-img img");
+        if(im) im.src = pic(d.dataset.pid, d.dataset.sw, im.src);
+        card.querySelectorAll("[data-sw]").forEach(function(x){ x.classList.toggle("on", x===d); });
+      });
+    });
+
     g.querySelectorAll("[data-open]").forEach(function(b){
       b.addEventListener("click",function(){ openProduct(b.dataset.open); });
+      b.addEventListener("keydown",function(ev){
+        if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); openProduct(b.dataset.open); }
+      });
     });
     observe(g.querySelectorAll(".rv"));
   }
