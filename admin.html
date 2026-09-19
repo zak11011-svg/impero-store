@@ -528,14 +528,39 @@ tr:last-child td{border-bottom:0}
 
   /* ---------------- auth ---------------- */
 
+  // If no key was pasted here, borrow the one already saved in index.html.
+  function findKey(){
+    if(CFG.SUPABASE_KEY) return Promise.resolve(CFG.SUPABASE_KEY);
+    return fetch("index.html", {cache:"no-store"})
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var m = t.match(/SUPABASE_KEY\s*:\s*"([^"]+)"/);
+        return m ? m[1] : "";
+      })
+      .catch(function(){ return ""; });
+  }
+
   function init(){
-    if(!CFG.SUPABASE_KEY || !window.supabase){
-      el("loginAlert").textContent="Not connected yet. Paste your Supabase key into the settings block at the top of admin.html.";
+    if(!window.supabase){
+      el("loginAlert").textContent="Could not load the database library. Check your connection and reload.";
       el("loginAlert").classList.add("on");
       el("loginBtn").disabled=true;
       return;
     }
-    db = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY);
+    el("loginBtn").disabled=true;
+    findKey().then(function(key){
+      if(!key){
+        el("loginAlert").textContent="Not connected yet. Paste your Supabase key into the settings block at the top of index.html.";
+        el("loginAlert").classList.add("on");
+        return;
+      }
+      el("loginBtn").disabled=false;
+      start(key);
+    });
+  }
+
+  function start(key){
+    db = window.supabase.createClient(CFG.SUPABASE_URL, key);
     db.auth.getSession().then(function(res){
       if(res.data && res.data.session) show();
     });
