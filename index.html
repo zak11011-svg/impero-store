@@ -368,9 +368,9 @@ p{margin:0}
 .qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 
 .spec-list{border-top:1px solid var(--line);margin-top:26px}
-.spec-list div{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line);font-size:.78rem}
-.spec-list dt{color:var(--muted);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase}
-.spec-list dd{margin:0}
+.spec-list div{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid var(--line);font-size:.78rem;align-items:flex-start}
+.spec-list dt{color:var(--muted);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.spec-list dd{margin:0;text-align:right;max-width:60%;line-height:1.45}
 
 /* cart lines */
 .line{display:grid;grid-template-columns:62px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--line)}
@@ -991,12 +991,16 @@ tr:last-child td{border-bottom:0}
         '<button type="button" data-step="1" aria-label="More">+</button>'+
       '</div>'+
       '<dl class="spec-list">'+
-        '<div><dt>Pressure</dt><dd>'+esc(p.pressure)+'</dd></div>'+
-        '<div><dt>Battery</dt><dd>'+esc(p.battery)+'</dd></div>'+
-        '<div><dt>Heating</dt><dd>Self-heating</dd></div>'+
-        '<div><dt>Type</dt><dd>'+esc(p.coffee_type)+'</dd></div>'+
-        '<div><dt>Charging</dt><dd>USB-C</dd></div>'+
-      '</dl>';
+        '<div><dt>Water capacity</dt><dd>100ml water tank</dd></div>'+
+        '<div><dt>Extraction pressure</dt><dd>'+esc(p.pressure)+'</dd></div>'+
+        '<div><dt>Battery capacity</dt><dd>9600mAh lithium battery</dd></div>'+
+        '<div><dt>Charging</dt><dd>USB-C, rechargeable</dd></div>'+
+        '<div><dt>Compatibility</dt><dd>Nespresso&reg; capsules, Dolce Gusto&reg; capsules and ground coffee</dd></div>'+
+        '<div><dt>Heating system</dt><dd>Self-heating</dd></div>'+
+        '<div><dt>Material</dt><dd>Stainless steel</dd></div>'+
+        '<div><dt>Brewing</dt><dd>'+esc(p.coffee_type)+'</dd></div>'+
+      '</dl>'+
+      '<p class="note" style="margin-top:16px;font-size:.72rem">Nespresso&reg; and Dolce Gusto&reg; are trademarks of their respective owners. Coffee Impero is not affiliated with either.</p>';
 
     var foot=document.getElementById("pdFoot");
     foot.innerHTML='<button class="btn btn-solid btn-block" id="pdAdd">Add to bag</button>'+
