@@ -92,7 +92,7 @@ body::after{
 .header,main,.footer,.wa,.panel,.scrim,.login-wrap,.admin-shell{position:relative;z-index:1}
 
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-html{background:var(--ink)}
+html{background:var(--ink);overflow-x:hidden}
 body{
   margin:0;background:transparent;color:var(--ivory);
   font-family:var(--ui);font-weight:300;font-size:16px;line-height:1.6;
@@ -106,8 +106,8 @@ button{font:inherit;color:inherit;background:none;border:0}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}html{scroll-behavior:auto}}
 
 .shell{width:min(1280px,100%);margin-inline:auto;padding-inline:var(--pad)}
-.skip{position:absolute;left:-9999px}
-.skip:focus{left:8px;top:8px;z-index:200;background:var(--gold);color:var(--ink);padding:10px 16px}
+.skip{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip:focus{width:auto;height:auto;clip:auto;inset-inline-start:8px;top:8px;z-index:200;background:var(--gold);color:var(--ink);padding:10px 16px}
 
 /* ---------- type ---------- */
 h1,h2,h3{margin:0;font-weight:400;line-height:1.05}
@@ -187,6 +187,11 @@ p{margin:0}
   width:min(74vw,330px);filter:drop-shadow(0 40px 60px rgba(0,0,0,.75));
   animation:float 9s ease-in-out infinite;
 }
+.hero-video{
+  width:min(92vw,520px);height:auto;display:block;
+  border:1px solid var(--line-gold);
+  box-shadow:0 30px 70px rgba(0,0,0,.65);
+}
 .hero-glow{
   position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
   width:min(88vw,420px);aspect-ratio:1;border-radius:50%;
@@ -200,6 +205,7 @@ p{margin:0}
   .hero-copy{text-align:left}
   .hero .lede{margin:0 0 38px}
   .hero-fig img{width:min(34vw,440px)}
+  .hero-video{width:min(42vw,560px)}
   .hero-actions{justify-content:flex-start}
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
@@ -330,7 +336,8 @@ p{margin:0}
   transform:translateX(101%);transition:transform .5s var(--ease);
   display:flex;flex-direction:column;
 }
-.panel.open{transform:none}
+.panel{visibility:hidden}
+.panel.open{transform:none;visibility:visible}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:20px var(--pad);border-bottom:1px solid var(--line)}
 .panel-head h2{font-family:var(--ui);font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
 .panel-body{flex:1;overflow-y:auto;padding:var(--pad);-webkit-overflow-scrolling:touch}
@@ -358,9 +365,9 @@ p{margin:0}
 .qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 
 .spec-list{border-top:1px solid var(--line);margin-top:26px}
-.spec-list div{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line);font-size:.78rem}
-.spec-list dt{color:var(--muted);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase}
-.spec-list dd{margin:0}
+.spec-list div{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid var(--line);font-size:.78rem;align-items:flex-start}
+.spec-list dt{color:var(--muted);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.spec-list dd{margin:0;text-align:right;max-width:60%;line-height:1.45}
 
 /* cart lines */
 .line{display:grid;grid-template-columns:62px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--line)}
@@ -454,6 +461,91 @@ tr:last-child td{border-bottom:0}
 
 .loading{padding:50px 0;text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.24em;text-transform:uppercase}
 
+
+/* ---------- colour availability ---------- */
+.sw.gone{opacity:.30}
+.sw.gone::after{
+  content:"";position:absolute;left:50%;top:50%;
+  width:120%;height:1px;background:var(--ivory);opacity:.6;
+  transform:translate(-50%,-50%) rotate(-45deg);
+}
+.opt.gone{opacity:.45}
+.opt.gone em{
+  font-style:normal;font-size:.56rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--red);margin-left:4px;
+}
+
+/* ---------- admin: stock rows per colour ---------- */
+.vlist{border-top:1px solid var(--line)}
+.vrow{
+  display:grid;grid-template-columns:auto 1fr auto auto;gap:10px 12px;align-items:center;
+  padding:14px 0;border-bottom:1px solid var(--line);
+}
+.vdot{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.2);display:inline-block}
+.vname{font-size:.9rem;letter-spacing:.04em}
+.vnum{font-family:var(--display);font-size:1.3rem}
+.vbtns{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.vbtns input{
+  min-height:42px;width:78px;padding:6px 8px;text-align:center;
+  background:var(--ink);border:1px solid var(--line);color:var(--ivory);
+}
+
+
+/* ==========================================================
+   ARABIC / RIGHT TO LEFT
+   Arabic letters join, so letter-spacing must be switched off.
+   ========================================================== */
+
+.lang-btn{
+  padding:8px 12px;margin-inline-start:4px;cursor:pointer;
+  border:1px solid var(--line);color:var(--muted);
+  font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+  transition:border-color .3s,color .3s;white-space:nowrap;
+}
+.lang-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+body.ar{
+  font-family:'Noto Kufi Arabic','Jost',sans-serif;
+  letter-spacing:0;
+}
+body.ar .display,body.ar .h2,body.ar .h3,
+body.ar h1,body.ar h2,body.ar h3,
+body.ar .card h3,body.ar .pd-name,body.ar .contact-line,
+body.ar .card-price,body.ar .pd-price,body.ar .spec b,
+body.ar .totals b,body.ar .ok-no,body.ar .stat b,body.ar .vnum,
+body.ar .crow b,body.ar .inv-head h3,body.ar .order-no{
+  font-family:'Noto Kufi Arabic',serif;letter-spacing:0;line-height:1.35;
+}
+body.ar .eyebrow,body.ar .btn,body.ar .nav a,body.ar .mnav a,
+body.ar .field-label,body.ar .card-spec,body.ar .pd-spec,
+body.ar .stock-tag,body.ar .spec span,body.ar .footer h4,
+body.ar .footer-tag,body.ar .crow span,body.ar .line p,
+body.ar .link-x,body.ar .tab,body.ar .pill,body.ar .spec-list dt,
+body.ar .panel-head h2,body.ar .lang-btn,body.ar .scroll-hint{
+  letter-spacing:0;
+}
+body.ar .brand span{letter-spacing:.18em}
+
+[dir="rtl"] .panel{
+  right:auto;left:0;
+  border-left:0;border-right:1px solid var(--line);
+  transform:translateX(-101%);
+  box-shadow:18px 0 50px rgba(0,0,0,.4);
+}
+[dir="rtl"] .panel{visibility:hidden}
+.panel.open{transform:none;visibility:visible}
+[dir="rtl"] .wa{right:auto;left:16px}
+[dir="rtl"] .count{right:auto;left:5px}
+[dir="rtl"] .spec-list dd{text-align:left}
+[dir="rtl"] .pair figcaption{left:auto;right:20px}
+[dir="rtl"] .line{grid-template-columns:62px 1fr}
+[dir="rtl"] .footer-bottom,[dir="rtl"] .hero-actions{direction:rtl}
+@media(min-width:900px){
+  [dir="rtl"] .hero-copy{text-align:right}
+}
+[dir="rtl"] .rule-gold{background:linear-gradient(-90deg,var(--line-gold),transparent)}
+[dir="rtl"] .vrow{grid-template-columns:auto 1fr auto auto}
+
 </style>
 </head>
 <body>
@@ -465,20 +557,21 @@ tr:last-child td{border-bottom:0}
       <span>Coffee Impero</span>
     </a>
     <nav class="nav" aria-label="Main">
-      <a href="index.html#collection">Collection</a>
-      <a href="about.html">About</a>
-      <a href="index.html#contact">Contact</a>
+      <a href="index.html#collection" data-i18n="nav.collection">Collection</a>
+      <a href="about.html" data-i18n="nav.about">About</a>
+      <a href="index.html#contact" data-i18n="nav.contact">Contact</a>
     </nav>
     <div class="h-actions">
+      <button class="lang-btn" id="langBtn" aria-label="Switch language">العربية</button>
       <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false" aria-controls="mnav">
         <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
       </button>
     </div>
   </div>
   <nav class="mnav" id="mnav" aria-label="Mobile">
-    <a href="index.html#collection">Collection</a>
-    <a href="about.html">About</a>
-    <a href="index.html#contact">Contact</a>
+    <a href="index.html#collection" data-i18n="nav.collection">Collection</a>
+    <a href="about.html" data-i18n="nav.about">About</a>
+    <a href="index.html#contact" data-i18n="nav.contact">Contact</a>
   </nav>
 </header>
 
@@ -486,25 +579,25 @@ tr:last-child td{border-bottom:0}
 
   <section class="section" style="padding-bottom:0">
     <div class="shell" style="max-width:760px">
-      <span class="eyebrow">The story behind Coffee Impero</span>
-      <h1 class="h2" style="margin:18px 0 0">Coffee should<br>go where you go.</h1>
+      <span class="eyebrow" data-i18n="ab.eyebrow">The story behind Coffee Impero</span>
+      <h1 class="h2" style="margin:18px 0 0" data-i18n="ab.title">Coffee should<br>go where you go.</h1>
     </div>
   </section>
 
   <section style="padding:clamp(40px,8vw,70px) 0 clamp(60px,10vw,110px)">
     <div class="shell" style="max-width:760px">
 
-      <p class="lede" style="max-width:none;margin-bottom:26px">
+      <p class="lede" style="max-width:none;margin-bottom:26px" data-i18n="ab.p1">
         Coffee Impero started with a simple thought.
       </p>
 
-      <p style="color:var(--muted);margin-bottom:22px;max-width:none">
+      <p style="color:var(--muted);margin-bottom:22px;max-width:none" data-i18n="ab.p2">
         Living in a city where life moves quickly, we found ourselves wanting the
         freedom to enjoy a proper espresso wherever the day took us, without being
         tied to a kitchen, a cafe, or a bulky machine.
       </p>
 
-      <p style="color:var(--muted);margin-bottom:22px;max-width:none">
+      <p style="color:var(--muted);margin-bottom:22px;max-width:none" data-i18n="ab.p3">
         That idea became Coffee Impero. We set out to find a better way to
         experience espresso on the move: compact, powerful, rechargeable, and
         designed to fit naturally into modern life.
@@ -512,36 +605,36 @@ tr:last-child td{border-bottom:0}
 
       <hr class="rule-gold" style="margin:44px 0;background:var(--gold)">
 
-      <p style="color:var(--muted);margin-bottom:22px;max-width:none">
+      <p style="color:var(--muted);margin-bottom:22px;max-width:none" data-i18n="ab.p4">
         But we did not want to create something that was simply practical. We
         wanted something that felt refined. Something you would be proud to carry.
         Something designed around the way people actually live today.
       </p>
 
-      <p style="color:var(--muted);margin-bottom:26px;max-width:none">
+      <p style="color:var(--muted);margin-bottom:26px;max-width:none" data-i18n="ab.p6">
         That became the foundation of Coffee Impero.
       </p>
 
-      <p class="eyebrow" style="margin-bottom:44px">Performance. Portability. Design.</p>
+      <p class="eyebrow" style="margin-bottom:44px" data-i18n="ab.pillars">Performance. Portability. Design.</p>
 
-      <h2 class="h3" style="margin-bottom:18px">Where we are going</h2>
-      <p style="color:var(--muted);margin-bottom:22px;max-width:none">
+      <h2 class="h3" style="margin-bottom:18px" data-i18n="ab.h2">Where we are going</h2>
+      <p style="color:var(--muted);margin-bottom:22px;max-width:none" data-i18n="ab.p5">
         Today, our focus is portable espresso, but our vision is bigger. We believe
         the future of everyday products is portable. Products should give you more
         freedom, not tie you to one place.
       </p>
-      <p style="color:var(--muted);margin-bottom:44px;max-width:none">
+      <p style="color:var(--muted);margin-bottom:44px;max-width:none" data-i18n="ab.p8">
         Coffee Impero is building toward that future, one product at a time.
       </p>
 
       <hr class="rule-gold" style="margin:0 0 40px;background:var(--gold)">
 
-      <p class="h2" style="font-size:clamp(1.6rem,6vw,2.6rem);margin-bottom:16px">
+      <p class="h2" style="font-size:clamp(1.6rem,6vw,2.6rem);margin-bottom:16px" data-i18n="ab.slogan">
         Luxury Coffee.<br>Anywhere.
       </p>
-      <p class="eyebrow" style="margin-bottom:38px">Designed for those who move with purpose</p>
+      <p class="eyebrow" style="margin-bottom:38px" data-i18n="life.2b">Designed for those who move with purpose</p>
 
-      <a class="btn" href="index.html#collection">Shop the collection</a>
+      <a class="btn" href="index.html#collection" data-i18n="cta.shop">Shop the collection</a>
     </div>
   </section>
 
@@ -555,10 +648,10 @@ tr:last-child td{border-bottom:0}
           <img src="data:image/webp;base64,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" alt="" aria-hidden="true" width="22" height="30">
           <span>Coffee Impero</span>
         </a>
-        <p class="footer-tag">Luxury Coffee. Anywhere.</p>
+        <p class="footer-tag" data-i18n="slogan">Luxury Coffee. Anywhere.</p>
       </div>
       <div>
-        <h4>Collection</h4>
+        <h4 data-i18n="nav.collection">Collection</h4>
         <ul>
           <li><a href="index.html#collection">Impero Core</a></li>
           <li><a href="index.html#collection">Impero Pro</a></li>
@@ -566,16 +659,16 @@ tr:last-child td{border-bottom:0}
         </ul>
       </div>
       <div>
-        <h4>Contact</h4>
+        <h4 data-i18n="nav.contact">Contact</h4>
         <ul>
           <li><a href="mailto:info@coffeeimpero.com">info@coffeeimpero.com</a></li>
-          <li><a href="about.html">About</a></li>
+          <li><a href="about.html" data-i18n="nav.about">About</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <span>&copy; <span id="year"></span> Coffee Impero, Qatar</span>
-      <span>Free delivery in Qatar. Cash on delivery.</span>
+      <span data-i18n="foot.note">Free delivery in Qatar. Cash on delivery.</span>
     </div>
   </div>
 </footer>
@@ -592,6 +685,52 @@ tr:last-child td{border-bottom:0}
     mb.setAttribute("aria-expanded",open?"true":"false");
   });
   document.querySelectorAll(".rv").forEach(function(e){ e.classList.add("in"); });
+
+  var AR = {
+    "nav.collection":"المجموعة","nav.about":"من نحن","nav.contact":"تواصل معنا",
+    "cta.shop":"تسوّق المجموعة","slogan":"قهوة فاخرة. في أي مكان.",
+    "foot.note":"توصيل مجاني في قطر. الدفع عند الاستلام.",
+    "ab.eyebrow":"قصة كوفي إمبيرو",
+    "ab.title":"القهوة يجب أن<br>ترافقك أينما ذهبت.",
+    "ab.p1":"بدأت كوفي إمبيرو من فكرة بسيطة.",
+    "ab.p2":"نعيش في مدينة سريعة الإيقاع، ووجدنا أنفسنا نرغب في حرية تناول إسبريسو حقيقي أينما قادنا اليوم، دون الارتباط بمطبخ أو مقهى أو آلة ضخمة.",
+    "ab.p3":"من تلك الفكرة وُلدت كوفي إمبيرو. بحثنا عن طريقة أفضل لتجربة الإسبريسو أثناء التنقل: صغيرة، قوية، قابلة لإعادة الشحن، ومصممة لتناسب الحياة الحديثة.",
+    "ab.p4":"لكننا لم نرد صنع شيء عملي فحسب. أردنا شيئاً يبدو راقياً. شيئاً تفخر بحمله. شيئاً مصمماً حول أسلوب حياة الناس اليوم.",
+    "ab.p6":"وهكذا تشكّل أساس كوفي إمبيرو.",
+    "ab.pillars":"الأداء. سهولة الحمل. التصميم.",
+    "ab.h2":"إلى أين نتجه",
+    "ab.p5":"اليوم نركّز على الإسبريسو المحمول، لكن رؤيتنا أوسع. نؤمن أن مستقبل المنتجات اليومية هو أن تكون محمولة. المنتجات يجب أن تمنحك حرية أكبر، لا أن تقيّدك بمكان واحد.",
+    "ab.p8":"وتعمل كوفي إمبيرو نحو ذلك المستقبل، منتجاً تلو الآخر.",
+    "ab.slogan":"قهوة فاخرة.<br>في أي مكان.",
+    "life.2b":"مصمّمة لمن يتحرك بهدف"
+  };
+
+  function applyLang(lang){
+    var ar = lang==="ar";
+    document.documentElement.lang = ar?"ar":"en";
+    document.documentElement.dir  = ar?"rtl":"ltr";
+    document.body.classList.toggle("ar", ar);
+    try{ localStorage.setItem("ci_lang", ar?"ar":"en"); }catch(e){}
+    if(ar && !document.getElementById("arFont")){
+      var l=document.createElement("link"); l.id="arFont"; l.rel="stylesheet";
+      l.href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@300;400;500&display=swap";
+      document.head.appendChild(l);
+    }
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var k=el.dataset.i18n;
+      if(!el.dataset.en) el.dataset.en = el.innerHTML;
+      el.innerHTML = ar ? (AR[k] || el.dataset.en) : el.dataset.en;
+    });
+    var btn=document.getElementById("langBtn");
+    if(btn) btn.textContent = ar ? "English" : "العربية";
+  }
+
+  var saved=null; try{ saved=localStorage.getItem("ci_lang"); }catch(e){}
+  var q=(location.search.match(/[?&]lang=(ar|en)/)||[])[1];
+  applyLang(q || saved || ((navigator.language||"").slice(0,2)==="ar"?"ar":"en"));
+  document.getElementById("langBtn").addEventListener("click", function(){
+    applyLang(document.documentElement.dir==="rtl" ? "en" : "ar");
+  });
 </script>
 </body>
 </html>
