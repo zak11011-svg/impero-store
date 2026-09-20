@@ -184,9 +184,11 @@ p{margin:0}
   animation:float 9s ease-in-out infinite;
 }
 .hero-video{
-  width:min(92vw,520px);height:auto;display:block;
-  border:1px solid var(--line-gold);
-  box-shadow:0 30px 70px rgba(0,0,0,.65);
+  width:100%;max-width:560px;margin-inline:auto;
+  transform:translateX(1%);height:auto;display:block;border:0;
+  /* feather the edges so the clip melts into the page */
+  -webkit-mask-image:radial-gradient(ellipse 58% 56% at 50% 50%, #000 16%, rgba(0,0,0,.45) 50%, rgba(0,0,0,.12) 70%, transparent 85%);
+  mask-image:radial-gradient(ellipse 58% 56% at 50% 50%, #000 16%, rgba(0,0,0,.45) 50%, rgba(0,0,0,.12) 70%, transparent 85%);
 }
 .hero-glow{
   position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
@@ -201,7 +203,7 @@ p{margin:0}
   .hero-copy{text-align:left}
   .hero .lede{margin:0 0 38px}
   .hero-fig img{width:min(34vw,440px)}
-  .hero-video{width:min(42vw,560px)}
+  .hero-video{width:100%;max-width:620px}
   .hero-actions{justify-content:flex-start}
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
@@ -264,14 +266,18 @@ p{margin:0}
 .sw.on{box-shadow:0 0 0 1px var(--ink),0 0 0 2px var(--gold)}
 
 /* ---------- statement band ---------- */
-.band{position:relative;min-height:74svh;display:flex;align-items:flex-end;overflow:hidden}
-.band-img{position:absolute;inset:0}
-.band-img img{width:100%;height:100%;object-fit:cover;opacity:.55}
-.band::after{
+.band{position:relative;overflow:hidden}
+.band-img{position:relative}
+.band-img img{width:100%;height:auto;display:block;opacity:.92}
+.band-img::after{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(to top,var(--ink) 4%,rgba(8,8,7,.55) 45%,rgba(8,8,7,.25) 100%);
+  background:linear-gradient(to top,rgba(8,8,7,.92) 0%,rgba(8,8,7,.25) 38%,rgba(8,8,7,.05) 100%);
 }
-.band-copy{position:relative;z-index:2;padding:0 0 clamp(44px,9vw,90px);width:100%}
+.band-copy{
+  position:relative;z-index:2;width:100%;
+  margin-top:clamp(-70px,-9vw,-30px);
+  padding:0 0 clamp(40px,8vw,80px);
+}
 
 /* ---------- spec strip ---------- */
 .specs{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border-block:1px solid var(--line)}
@@ -294,10 +300,10 @@ p{margin:0}
 .pair{display:grid;gap:14px}
 @media(min-width:800px){.pair{grid-template-columns:1fr 1fr}}
 .pair figure{margin:0;position:relative;overflow:hidden}
-.pair img{width:100%;aspect-ratio:4/5;object-fit:cover;opacity:.78;transition:transform 1.4s var(--ease),opacity .6s}
+.pair img{width:100%;height:auto;display:block;opacity:.82;transition:transform 1.4s var(--ease),opacity .6s}
 .pair figure:hover img{transform:scale(1.04);opacity:.92}
 .pair figcaption{
-  position:absolute;left:20px;bottom:18px;
+  position:absolute;left:20px;right:20px;bottom:18px;
   font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ivory);
   text-shadow:0 2px 14px rgba(0,0,0,.8);
 }
@@ -542,6 +548,44 @@ body.ar .brand span{letter-spacing:.18em}
 [dir="rtl"] .rule-gold{background:linear-gradient(-90deg,var(--line-gold),transparent)}
 [dir="rtl"] .vrow{grid-template-columns:auto 1fr auto auto}
 
+
+
+
+
+
+/* ---------- warranty and travel ---------- */
+.assure{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media(min-width:800px){ .assure{grid-template-columns:repeat(3,1fr)} }
+.assure-item{background:var(--ink);padding:26px 22px}
+.assure-item b{
+  display:block;font-family:var(--display);font-weight:400;
+  font-size:1.15rem;color:var(--ivory);margin-bottom:8px;letter-spacing:.03em;
+}
+.assure-item span{color:var(--muted);font-size:.88rem;font-weight:300;line-height:1.6}
+
+/* ---------- reviews ---------- */
+.rev-score{margin-top:16px;font-size:.78rem;letter-spacing:.14em;color:var(--gold)}
+.rev-score b{font-family:var(--display);font-size:1.5rem;font-weight:400;margin-inline-end:8px}
+
+.rev-list{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:28px}
+@media(min-width:820px){ .rev-list{grid-template-columns:repeat(2,1fr)} }
+.rev-item{background:var(--ink);padding:24px 22px}
+.rev-top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:10px}
+.rev-name{font-family:var(--display);font-size:1.05rem;letter-spacing:.04em}
+.rev-when{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+.rev-stars{color:var(--gold);font-size:.85rem;letter-spacing:.18em;margin-bottom:10px}
+.rev-text{color:var(--muted);font-size:.92rem;font-weight:300;line-height:1.65}
+.rev-empty{background:var(--ink);padding:34px 22px;color:var(--muted);font-size:.9rem}
+
+.rev-form{max-width:520px;margin-top:26px}
+.stars{display:flex;gap:6px}
+.stars button{
+  font-size:1.7rem;line-height:1;cursor:pointer;color:var(--line);
+  background:none;border:0;padding:2px 2px;transition:color .2s;
+}
+.stars button.on{color:var(--gold)}
+.rev-thanks{border:1px solid var(--line-gold);padding:26px 22px;margin-top:26px}
+
 </style>
 </head>
 <body>
@@ -586,6 +630,7 @@ body.ar .brand span{letter-spacing:.18em}
       <button class="tab" role="tab" data-pane="overview"  aria-selected="true">Overview</button>
       <button class="tab" role="tab" data-pane="inventory" aria-selected="false">Inventory</button>
       <button class="tab" role="tab" data-pane="orders"    aria-selected="false">Orders</button>
+      <button class="tab" role="tab" data-pane="reviews"   aria-selected="false">Reviews</button>
       <button class="tab" role="tab" data-pane="data"      aria-selected="false">Data</button>
       <button class="tab" role="tab" data-pane="history"   aria-selected="false">History</button>
     </div>
@@ -602,6 +647,10 @@ body.ar .brand span{letter-spacing:.18em}
 
     <section class="pane" id="pane-orders">
       <div id="orders"></div>
+    </section>
+
+    <section class="pane" id="pane-reviews">
+      <div id="reviews"></div>
     </section>
 
     <section class="pane" id="pane-data">
@@ -629,7 +678,7 @@ body.ar .brand span{letter-spacing:.18em}
   var CFG = window.CI_CONFIG || {};
   var CUR = CFG.CURRENCY || "QAR";
   var STATUSES = ["NEW","CONFIRMED","OUT FOR DELIVERY","COMPLETED","CANCELLED"];
-  var db = null, products = [], variants = [], orders = [], logs = [];
+  var db = null, products = [], variants = [], orders = [], logs = [], reviews = [];
 
   function money(n){ return CUR + " " + Number(n).toFixed(0); }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
@@ -739,13 +788,15 @@ body.ar .brand span{letter-spacing:.18em}
       db.from("products").select("*").order("sort_order"),
       db.from("orders").select("*, order_items(*)").order("created_at",{ascending:false}).limit(100),
       db.from("stock_log").select("*").order("created_at",{ascending:false}).limit(60),
-      db.from("variants").select("*").order("sort_order")
+      db.from("variants").select("*").order("sort_order"),
+      db.from("reviews").select("*").order("created_at",{ascending:false}).limit(80)
     ]).then(function(r){
       products = r[0].data || [];
       orders   = r[1].data || [];
       logs     = r[2].data || [];
       variants = r[3].data || [];
-      renderStats(); renderInventory(); renderOrders(); renderData(); renderHistory();
+      reviews  = r[4].data || [];
+      renderStats(); renderInventory(); renderOrders(); renderData(); renderHistory(); renderReviews();
     });
   }
 
@@ -764,7 +815,9 @@ body.ar .brand span{letter-spacing:.18em}
       '<div class="stat"><b>'+totalStock+'</b><span>Total stock</span></div>'+
       '<div class="stat '+(low?"warn":"")+'"><b>'+low+'</b><span>Low colours</span></div>'+
       '<div class="stat '+(out?"bad":"")+'"><b>'+out+'</b><span>Sold out colours</span></div>'+
-      '<div class="stat"><b>'+open+'</b><span>Open orders</span></div>';
+      '<div class="stat"><b>'+open+'</b><span>Open orders</span></div>'+
+      '<div class="stat '+(reviews.filter(function(r){return !r.approved;}).length?"warn":"")+'"><b>'+
+        reviews.filter(function(r){return !r.approved;}).length+'</b><span>Reviews waiting</span></div>';
 
     el("recentOrders").innerHTML = orders.length
       ? orders.slice(0,5).map(orderCard).join("")
@@ -918,7 +971,16 @@ body.ar .brand span{letter-spacing:.18em}
       var id=card.dataset.id;
       card.querySelectorAll("[data-status]").forEach(function(b){
         b.addEventListener("click", function(){
-          db.from("orders").update({status:b.dataset.status}).eq("id",id).then(function(res){
+          var st=b.dataset.status;
+          if(st==="CANCELLED"){
+            if(!confirm("Cancel this order and return its stock?")) return;
+            db.rpc("cancel_order",{p_order:id}).then(function(res){
+              if(res.error){ alert(res.error.message); return; }
+              loadAll();
+            });
+            return;
+          }
+          db.from("orders").update({status:st}).eq("id",id).then(function(res){
             if(res.error){ alert(res.error.message); return; }
             loadAll();
           });
@@ -935,6 +997,58 @@ body.ar .brand span{letter-spacing:.18em}
   }
 
   /* ---------------- data ---------------- */
+
+  function renderReviews(){
+    var pending = reviews.filter(function(r){ return !r.approved; });
+    var live    = reviews.filter(function(r){ return r.approved; });
+
+    function card(r){
+      var stars=""; for(var i=1;i<=5;i++) stars += (i<=r.rating ? "\u2605" : "\u2606");
+      return ''+
+      '<div class="order" data-rev="'+r.id+'">'+
+        '<div class="order-top">'+
+          '<div><div class="order-no">'+esc(r.name)+'</div>'+
+            '<span class="note">'+when(r.created_at)+'</span></div>'+
+          '<span class="pill '+(r.approved?"in":"low")+'">'+(r.approved?"Published":"Pending")+'</span>'+
+        '</div>'+
+        '<p style="color:var(--gold);letter-spacing:.2em;margin-bottom:10px">'+stars+'</p>'+
+        '<p style="color:var(--muted);font-size:.9rem;margin-bottom:14px">'+esc(r.comment)+'</p>'+
+        '<div class="status-row">'+
+          (r.approved
+            ? '<button data-act="hide">Unpublish</button>'
+            : '<button data-act="show">Publish</button>')+
+          '<button data-act="del">Delete</button>'+
+        '</div>'+
+      '</div>';
+    }
+
+    el("reviews").innerHTML =
+      '<h3 class="h3" style="margin-bottom:14px">Waiting for you ('+pending.length+')</h3>'+
+      (pending.length ? pending.map(card).join("") : '<p class="note" style="margin-bottom:26px">Nothing waiting.</p>')+
+      '<h3 class="h3" style="margin:28px 0 14px">Published ('+live.length+')</h3>'+
+      (live.length ? live.map(card).join("") : '<p class="note">None published yet.</p>');
+
+    el("reviews").querySelectorAll("[data-rev]").forEach(function(box){
+      var id = box.dataset.rev;
+      box.querySelectorAll("[data-act]").forEach(function(b){
+        b.addEventListener("click", function(){
+          var act = b.dataset.act;
+          if(act === "del"){
+            if(!confirm("Delete this review for good?")) return;
+            db.from("reviews").delete().eq("id", id).then(function(res){
+              if(res.error){ alert(res.error.message); return; }
+              loadAll();
+            });
+            return;
+          }
+          db.from("reviews").update({approved: act === "show"}).eq("id", id).then(function(res){
+            if(res.error){ alert(res.error.message); return; }
+            loadAll();
+          });
+        });
+      });
+    });
+  }
 
   function renderData(){
     var rows = [];
