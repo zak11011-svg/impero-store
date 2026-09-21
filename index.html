@@ -2,6 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GHZNQKYNKC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-GHZNQKYNKC');
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Coffee Impero | Luxury Coffee. Anywhere.</title>
 
@@ -1538,7 +1547,22 @@ body.ar .brand span{letter-spacing:.18em}
       return t;
     }
 
+    function track(orderNo){
+      if (typeof window.gtag !== "function") return;
+      try {
+        window.gtag("event", "purchase", {
+          transaction_id: orderNo ? String(orderNo) : ("local-" + Date.now()),
+          currency: "QAR",
+          value: Bag.total(),
+          items: lines.map(function(l){
+            return { item_id: l.id, item_name: l.name, item_variant: l.color, price: l.price, quantity: l.qty };
+          })
+        });
+      } catch(e){}
+    }
+
     function done(orderNo){
+      track(orderNo);
       var url="https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(waText(orderNo));
       document.getElementById("coDoneNo").textContent = orderNo ? "#"+orderNo : "";
       document.getElementById("coWa").href=url;
