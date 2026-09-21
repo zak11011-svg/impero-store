@@ -2,6 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="facebook-domain-verification" content="mt7su2guvqkrocpvfenxnny4y0fm51" />
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1650321473340184');
+fbq('track', 'PageView');
+</script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GHZNQKYNKC"></script>
 <script>
@@ -651,6 +662,7 @@ body.ar .brand span{letter-spacing:.18em}
 </style>
 </head>
 <body>
+<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1650321473340184&ev=PageView&noscript=1"></noscript>
 
 <a class="skip" href="#collection">Skip to the collection</a>
 
@@ -1201,6 +1213,11 @@ body.ar .brand span{letter-spacing:.18em}
     if(document.getElementById("coSummary") && Bag.lines().length) { /* summary redraws on open */ }
   }
 
+  function fb(name, params, opts){
+    if (typeof window.fbq !== "function") return;
+    try { window.fbq("track", name, params || {}, opts || {}); } catch(e){}
+  }
+
   function find(id){ return PRODUCTS.filter(function(p){return p.id===id;})[0]; }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
@@ -1457,12 +1474,15 @@ body.ar .brand span{letter-spacing:.18em}
       });
     });
     add.addEventListener("click",function(){
-      Bag.add(p.id,currentColor,Math.max(1,parseInt(qi.value,10)||1));
+      var q = Math.max(1,parseInt(qi.value,10)||1);
+      Bag.add(p.id,currentColor,q);
+      fb("AddToCart", { content_ids:[p.id], content_name:p.name, content_type:"product", value:Number(p.price)*q, currency:"QAR" });
       openBag();
     });
 
     refresh();
     openPanel(productPanel);
+    fb("ViewContent", { content_ids:[p.id], content_name:p.name, content_type:"product", value:Number(p.price), currency:"QAR" });
   }
 
   function openBag(){ paintBag(); openPanel(bagPanel); }
@@ -1525,6 +1545,7 @@ body.ar .brand span{letter-spacing:.18em}
     document.getElementById("coDone").hidden=true;
     document.getElementById("coAlert").classList.remove("on");
     openPanel(checkoutPanel);
+    fb("InitiateCheckout", { content_ids:lines.map(function(l){return l.id;}), num_items:lines.reduce(function(n,l){return n+l.qty;},0), value:Bag.total(), currency:"QAR" });
   }
 
   function submitOrder(e){
@@ -1578,6 +1599,14 @@ body.ar .brand span{letter-spacing:.18em}
 
     function done(orderNo){
       track(orderNo);
+      fb("Purchase", {
+        content_ids: lines.map(function(l){ return l.id; }),
+        contents: lines.map(function(l){ return { id:l.id, quantity:l.qty, item_price:l.price }; }),
+        content_type: "product",
+        num_items: lines.reduce(function(n,l){ return n + l.qty; }, 0),
+        value: Bag.total(),
+        currency: "QAR"
+      }, { eventID: orderNo ? ("order-" + orderNo) : undefined });
       var url="https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(waText(orderNo));
       document.getElementById("coDoneNo").textContent = orderNo ? "#"+orderNo : "";
       document.getElementById("coWa").href=url;
