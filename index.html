@@ -596,14 +596,29 @@ body.ar .brand span{letter-spacing:.18em}
 .rev-score{margin-top:16px;font-size:.78rem;letter-spacing:.14em;color:var(--gold)}
 .rev-score b{font-family:var(--display);font-size:1.5rem;font-weight:400;margin-inline-end:8px}
 
-.rev-list{display:grid;gap:0;background:none;border:1px solid var(--line);margin-bottom:28px}
+.rev-list{margin-bottom:28px}
 @media(min-width:820px){ .rev-list{grid-template-columns:repeat(2,1fr)} }
-.rev-item{background:var(--ink);padding:24px 22px;border-top:1px solid var(--line)}
-.rev-item:first-child{border-top:0}
-@media(min-width:820px){
-  .rev-item:nth-child(2){border-top:0}
-  .rev-item:nth-child(even){border-left:1px solid var(--line)}
+.rev-track{
+  display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;overscroll-behavior-x:contain;
+  padding-bottom:2px;
 }
+.rev-track::-webkit-scrollbar{display:none}
+.rev-item{
+  flex:0 0 100%;scroll-snap-align:start;
+  background:var(--ink);border:1px solid var(--line);padding:24px 22px;
+  display:flex;flex-direction:column;
+}
+@media(min-width:820px){ .rev-item{flex-basis:calc(50% - 7px)} }
+.rev-empty{border:1px solid var(--line)}
+
+.rev-dots{display:flex;justify-content:center;gap:9px;margin-top:18px}
+.rev-dots button{
+  width:7px;height:7px;border-radius:50%;padding:0;cursor:pointer;
+  background:var(--line);border:0;transition:background .3s,transform .3s;
+}
+.rev-dots button.on{background:var(--gold);transform:scale(1.25)}
 .rev-top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:10px}
 .rev-name{font-family:var(--display);font-size:1.05rem;letter-spacing:.04em}
 .rev-when{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
@@ -1635,19 +1650,92 @@ body.ar .brand span{letter-spacing:.18em}
         document.getElementById("revScore").innerHTML =
           '<b>'+avg.toFixed(1)+'</b>'+T("rev.of")+' &middot; '+T("rev.count").replace("{n}", rows.length);
 
-        list.innerHTML = rows.map(function(r){
-          var d = new Date(r.created_at);
-          return ''+
-          '<article class="rev-item">'+
-            '<div class="rev-top">'+
-              '<span class="rev-name">'+esc(r.name)+'</span>'+
-              '<span class="rev-when">'+d.toLocaleDateString(LANG==="ar"?"ar":undefined,{month:"short",year:"numeric"})+'</span>'+
-            '</div>'+
-            '<div class="rev-stars">'+starRow(r.rating)+'</div>'+
-            '<p class="rev-text">'+esc(r.comment)+'</p>'+
-          '</article>';
-        }).join("");
+        list.innerHTML =
+          '<div class="rev-track" id="revTrack">' +
+          rows.map(function(r){
+            var d = new Date(r.created_at);
+            return ''+
+            '<article class="rev-item">'+
+              '<div class="rev-top">'+
+                '<span class="rev-name">'+esc(r.name)+'</span>'+
+                '<span class="rev-when">'+d.toLocaleDateString(LANG==="ar"?"ar":undefined,{month:"short",year:"numeric"})+'</span>'+
+              '</div>'+
+              '<div class="rev-stars">'+starRow(r.rating)+'</div>'+
+              '<p class="rev-text">'+esc(r.comment)+'</p>'+
+            '</article>';
+          }).join("") +
+          '</div>' +
+          (rows.length > 1 ? '<div class="rev-dots" id="revDots">' +
+            rows.map(function(_,i){ return '<button type="button" aria-label="Review '+(i+1)+'" data-go="'+i+'"></button>'; }).join("") +
+          '</div>' : '');
+        startCarousel();
       });
+  }
+
+
+  /* ---------------- review carousel ----------------
+     Slides every REV_DWELL ms. Holding a finger on it (or hovering with
+     a mouse) freezes it; letting go starts it again. */
+
+  var REV_DWELL = 2000;
+  var revTimer = null, revIndex = 0, revHeld = false;
+
+  function startCarousel(){
+    var track = document.getElementById("revTrack");
+    if(!track) return;
+    var slides = track.querySelectorAll(".rev-item");
+    var dots = document.querySelectorAll("#revDots button");
+    if(revTimer){ clearInterval(revTimer); revTimer = null; }
+    revIndex = 0;
+    if(slides.length < 2) return;
+
+    function mark(i){
+      dots.forEach(function(d,k){ d.classList.toggle("on", k===i); });
+    }
+    function go(i){
+      revIndex = (i + slides.length) % slides.length;
+      var t = track.getBoundingClientRect();
+      var r = slides[revIndex].getBoundingClientRect();
+      var rtl = getComputedStyle(track).direction === "rtl";
+      var delta = rtl ? (r.right - t.right) : (r.left - t.left);
+      track.scrollTo({ left: track.scrollLeft + delta, behavior: "smooth" });
+      mark(revIndex);
+    }
+    function tick(){ if(!revHeld && !document.hidden) go(revIndex + 1); }
+    function run(){
+      if(revTimer) clearInterval(revTimer);
+      if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      revTimer = setInterval(tick, REV_DWELL);
+    }
+    function hold(){ revHeld = true; }
+    function release(){ revHeld = false; run(); }
+
+    // keep the dots honest when someone swipes by hand
+    var settle;
+    track.addEventListener("scroll", function(){
+      clearTimeout(settle);
+      settle = setTimeout(function(){
+        var t = track.getBoundingClientRect(), best = 0, bestD = 1e9;
+        slides.forEach(function(sl,k){
+          var d = Math.abs(sl.getBoundingClientRect().left - t.left);
+          if(d < bestD){ bestD = d; best = k; }
+        });
+        revIndex = best; mark(best);
+      }, 120);
+    }, {passive:true});
+
+    track.addEventListener("touchstart", hold, {passive:true});
+    track.addEventListener("touchend", release, {passive:true});
+    track.addEventListener("touchcancel", release, {passive:true});
+    track.addEventListener("mouseenter", hold);
+    track.addEventListener("mouseleave", release);
+
+    dots.forEach(function(d){
+      d.addEventListener("click", function(){ go(parseInt(d.dataset.go,10)); run(); });
+    });
+
+    mark(0);
+    run();
   }
 
   function initReviews(){
