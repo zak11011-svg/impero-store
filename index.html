@@ -2021,6 +2021,50 @@ body.no-scroll .pour{opacity:0}
 
   /* ---------------- scroll pour indicator ---------------- */
 
+  /* ---------------- hero video: keep it trying ---------------- */
+
+  function initHeroVideo(){
+    var v=document.querySelector(".hero-video");
+    if(!v) return;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce) return;
+
+    v.muted = true;               // iOS only autoplays muted video
+    v.setAttribute("muted","");
+    v.playsInline = true;
+
+    var tries = 0;
+    function attempt(){
+      if(v.ended || document.hidden) return;
+      if(!v.paused) return;
+      var r = v.play();
+      if(r && r.catch) r.catch(function(){ tries++; });
+    }
+
+    attempt();
+    v.addEventListener("canplay", attempt);
+    v.addEventListener("loadeddata", attempt);
+    v.addEventListener("pause", function(){ setTimeout(attempt, 400); });
+    document.addEventListener("visibilitychange", function(){ if(!document.hidden) setTimeout(attempt, 200); });
+    window.addEventListener("pageshow", function(){ setTimeout(attempt, 200); });
+
+    // a blocked autoplay clears on the first real touch, so use it once
+    ["touchstart","click","scroll"].forEach(function(ev){
+      window.addEventListener(ev, function once(){
+        attempt();
+        window.removeEventListener(ev, once);
+      }, {passive:true, once:true});
+    });
+
+    // try again whenever it scrolls back into view
+    if("IntersectionObserver" in window){
+      var io=new IntersectionObserver(function(es){
+        es.forEach(function(e){ if(e.isIntersecting) attempt(); });
+      },{threshold:.15});
+      io.observe(v);
+    }
+  }
+
   function initPour(){
     var pour=document.getElementById("pour");
     if(!pour) return;
@@ -2077,6 +2121,7 @@ body.no-scroll .pour{opacity:0}
     observe(document.querySelectorAll(".rv"));
     initReviews();
     initPour();
+    initHeroVideo();
 
     var saved=null;
     try{ saved=localStorage.getItem("ci_lang"); }catch(e){}
