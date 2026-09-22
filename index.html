@@ -702,7 +702,28 @@ body.no-scroll .pour{opacity:0}
   .pour-machine,.pour-cup-art{filter:none}
 }
 
+
+/* ---------- faq ---------- */
+.faq{max-width:760px;margin-inline:auto;border-top:1px solid var(--line)}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-item summary{
+  list-style:none; cursor:pointer; padding:20px 34px 20px 0; position:relative;
+  font-size:.92rem; line-height:1.5; color:var(--ivory);
+}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{
+  content:""; position:absolute; inset-inline-end:6px; top:26px;
+  width:9px; height:9px; border-right:1px solid var(--gold); border-bottom:1px solid var(--gold);
+  transform:rotate(45deg); transition:transform .3s var(--ease);
+}
+.faq-item[open] summary::after{transform:rotate(-135deg);top:30px}
+.faq-item summary:hover{color:var(--gold-soft)}
+.faq-a{padding:0 34px 22px 0;color:var(--muted);font-size:.86rem;line-height:1.75}
+[dir="rtl"] .faq-item summary{padding:20px 0 20px 34px}
+[dir="rtl"] .faq-a{padding:0 0 22px 34px}
+
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which capsules does it take?", "acceptedAnswer": {"@type": "Answer", "text": "Nespresso capsules, Dolce Gusto capsules and your own ground coffee. The adapters for all three are in the box."}}, {"@type": "Question", "name": "How much ground coffee should I use?", "acceptedAnswer": {"@type": "Answer", "text": "About 6 grams for one shot, using the ground coffee adapter. Level it off rather than packing it hard, so the water can pass through."}}, {"@type": "Question", "name": "Do I need hot water?", "acceptedAnswer": {"@type": "Answer", "text": "No. The machine heats the water itself. Fill the tank with cold water, press the button, and it brings it up to brewing temperature on its own."}}, {"@type": "Question", "name": "How many coffees on a full charge?", "acceptedAnswer": {"@type": "Answer", "text": "Five to six on a full battery, using 50ml of room temperature water for a double espresso. With hot water poured in, the battery only pumps rather than heats, so one charge gives more than a hundred cups."}}, {"@type": "Question", "name": "How do I charge it?", "acceptedAnswer": {"@type": "Answer", "text": "By USB-C, with the cable in the box. It runs on a rechargeable 9600mAh battery."}}, {"@type": "Question", "name": "Can I take it on a plane?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, in your cabin bag. The battery is about 36Wh, and it must never go in checked luggage. Airline rules differ, so check with yours before you fly."}}, {"@type": "Question", "name": "How do I clean it?", "acceptedAnswer": {"@type": "Answer", "text": "Rinse the cup and the adapter with warm water after use and let them dry. The silicone ring on the adapter lifts out easily, so remove it now and then, clean underneath it, dry both parts fully and press it back into place. Do not put the body in water, and do not put any part in the dishwasher."}}, {"@type": "Question", "name": "How much is delivery and how do I pay?", "acceptedAnswer": {"@type": "Answer", "text": "Delivery is free anywhere in Qatar, the same day or within three days. You pay cash to the driver when the machine reaches you."}}, {"@type": "Question", "name": "What if something goes wrong with it?", "acceptedAnswer": {"@type": "Answer", "text": "Every machine carries a six month warranty against manufacturing faults from the day it is delivered."}}, {"@type": "Question", "name": "Can I return it?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, while the box is still sealed. Once it is opened we cannot refund it, though manufacturing faults stay covered by the six month warranty."}}]}</script>
 </head>
 <body>
 <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1650321473340184&ev=PageView&noscript=1"></noscript>
@@ -719,6 +740,7 @@ body.no-scroll .pour{opacity:0}
       <a href="#collection" data-i18n="nav.collection">Collection</a>
       <a href="about.html" data-i18n="nav.about">About</a>
       <a href="#reviews" data-i18n="nav.reviews">Reviews</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
       <a href="mailto:info@coffeeimpero.com" data-i18n="nav.contact">Contact</a>
     </nav>
     <div class="h-actions">
@@ -735,6 +757,7 @@ body.no-scroll .pour{opacity:0}
   <nav class="mnav" id="mnav" aria-label="Mobile">
     <a href="#collection" data-i18n="nav.collection">Collection</a>
     <a href="about.html" data-i18n="nav.about">About</a>
+    <a href="#faq" data-i18n="nav.faq">FAQ</a>
     <a href="mailto:info@coffeeimpero.com" data-i18n="nav.contact">Contact</a>
   </nav>
 </header>
@@ -848,6 +871,58 @@ body.no-scroll .pour{opacity:0}
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="shell">
+      <div class="section-head rv">
+        <span class="eyebrow" data-i18n="faq.eyebrow">Questions</span>
+        <h2 class="h2" data-i18n="faq.title">Good to know.</h2>
+      </div>
+      <div class="faq rv">
+        <details class="faq-item">
+          <summary data-i18n="faq.q1">Which capsules does it take?</summary>
+          <div class="faq-a" data-i18n="faq.a1">Nespresso&reg; capsules, Dolce Gusto&reg; capsules and your own ground coffee. The adapters for all three are in the box, so nothing else to buy.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q2">How much ground coffee should I use?</summary>
+          <div class="faq-a" data-i18n="faq.a2">About 6 grams for one shot, using the ground coffee adapter. Level it off rather than packing it hard, so the water can pass through.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q3">Do I need hot water?</summary>
+          <div class="faq-a" data-i18n="faq.a3">No. The machine heats the water itself. Fill the tank with cold water, press the button, and it brings it up to brewing temperature on its own.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q10">How many coffees on a full charge?</summary>
+          <div class="faq-a" data-i18n="faq.a10">Five to six on a full battery, using 50ml of room temperature water for a double espresso. If you pour in hot water instead, the battery is only pumping, not heating, so one charge gives you more than a hundred cups.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q4">How do I charge it?</summary>
+          <div class="faq-a" data-i18n="faq.a4">By USB-C, with the cable in the box. It runs on a rechargeable 9600mAh battery, so you can brew in the car, on a trip or at your desk with no plug nearby.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q5">Can I take it on a plane?</summary>
+          <div class="faq-a" data-i18n="faq.a5">Yes, in your cabin bag. The battery is about 36Wh, which is within the usual hand luggage limit, and it must never go in checked luggage. Airline rules differ, so check with yours before you fly.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q6">How do I clean it?</summary>
+          <div class="faq-a" data-i18n="faq.a6">Rinse the cup and the adapter with warm water after use and let them dry. The silicone ring on the adapter lifts out easily, so take it off now and then, clean underneath it, dry both parts fully and press the ring back into place. Do not put the body in water, and do not put any part in the dishwasher.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q7">How much is delivery and how do I pay?</summary>
+          <div class="faq-a" data-i18n="faq.a7">Delivery is free anywhere in Qatar, the same day or within three days. You pay cash to the driver when the machine reaches you, so nothing is paid online.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q8">What if something goes wrong with it?</summary>
+          <div class="faq-a" data-i18n="faq.a8">Every machine carries a six month warranty against manufacturing faults from the day it is delivered. Message us on WhatsApp and we will sort it out.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq.q9">Can I return it?</summary>
+          <div class="faq-a" data-i18n="faq.a9">Yes, while the box is still sealed. Once it is opened we cannot refund it, though manufacturing faults stay covered by the six month warranty.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <!-- REVIEWS -->
   <section class="section" id="reviews">
     <div class="shell">
@@ -920,6 +995,7 @@ body.no-scroll .pour{opacity:0}
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" class="dot"/></svg>
             <span>@coffeeimpero</span></a></li>
           <li><a href="about.html" data-i18n="nav.about">About</a></li>
+          <li><a href="#faq" data-i18n="nav.faq">FAQ</a></li>
         </ul>
       </div>
     </div>
@@ -1211,6 +1287,29 @@ body.no-scroll .pour{opacity:0}
     "sp.heating":"نظام التسخين","sp.heatingv":"تسخين ذاتي",
     "sp.material":"المادة","sp.materialv":"ستانلس ستيل",
     "sp.brewing":"طرق التحضير",
+    "nav.faq":"الأسئلة الشائعة",
+    "faq.eyebrow":"أسئلة",
+    "faq.title":"معلومات تهمّك.",
+    "faq.q1":"ما الكبسولات التي تناسبها؟",
+    "faq.a1":"كبسولات Nespresso&reg; وكبسولات Dolce Gusto&reg; والقهوة المطحونة. محوّلات الثلاثة موجودة داخل العلبة، فلا حاجة لشراء أي شيء إضافي.",
+    "faq.q2":"كم غراماً من القهوة المطحونة أستخدم؟",
+    "faq.a2":"نحو ٦ غرامات لكوب واحد، باستخدام محوّل القهوة المطحونة. سوِّ سطح القهوة من دون ضغطها بقوة حتى يمر الماء بسهولة.",
+    "faq.q3":"هل أحتاج إلى ماء ساخن؟",
+    "faq.a3":"لا. الآلة تسخّن الماء بنفسها. املأ الخزان بماء بارد واضغط الزر، وهي ترفع الحرارة إلى درجة التحضير وحدها.",
+    "faq.q10":"كم كوباً تحضّر بشحنة كاملة؟",
+    "faq.a10":"من خمسة إلى ستة أكواب ببطارية ممتلئة، باستخدام ٥٠ مل من الماء بدرجة حرارة الغرفة لإسبريسو مزدوج. أما إذا سكبت ماءً ساخناً، فالبطارية تضخّ فقط ولا تسخّن، فتحصل على أكثر من مئة كوب بشحنة واحدة.",
+    "faq.q4":"كيف أشحنها؟",
+    "faq.a4":"عبر USB-C بالكابل الموجود في العلبة. تعمل ببطارية قابلة لإعادة الشحن سعة ٩٦٠٠ مللي أمبير، فتحضّر قهوتك في السيارة أو في السفر أو على مكتبك من دون كهرباء.",
+    "faq.q5":"هل يمكن اصطحابها في الطائرة؟",
+    "faq.a5":"نعم، في حقيبة اليد. سعة البطارية نحو ٣٦ واط ساعة وهي ضمن الحد المعتاد لحقيبة اليد، ولا توضع أبداً في الحقائب المسجّلة. تختلف قواعد شركات الطيران، لذا تحقق من شركتك قبل السفر.",
+    "faq.q6":"كيف أنظّفها؟",
+    "faq.a6":"اشطف الكوب والمحوّل بماء دافئ بعد الاستخدام واتركهما حتى يجفّا. حلقة السيليكون في المحوّل تُنزع بسهولة، فانزعها بين حين وآخر ونظّف ما تحتها، ثم جفّف القطعتين تماماً وأعدها إلى مكانها. لا تغمر جسم الآلة في الماء، ولا تضع أي جزء في غسالة الصحون.",
+    "faq.q7":"كم تكلفة التوصيل وكيف أدفع؟",
+    "faq.a7":"التوصيل مجاني في كل قطر، في نفس اليوم أو خلال ثلاثة أيام. تدفع نقداً للسائق عند وصول الآلة، ولا تدفع شيئاً عبر الإنترنت.",
+    "faq.q8":"ماذا لو حدث عطل في الآلة؟",
+    "faq.a8":"كل آلة مشمولة بضمان ستة أشهر ضد عيوب التصنيع من يوم الاستلام. راسلنا على واتساب وسنتولى الأمر.",
+    "faq.q9":"هل يمكنني إرجاعها؟",
+    "faq.a9":"نعم، طالما العلبة ما زالت مغلقة. بعد فتحها لا يمكن استرداد المبلغ، لكن عيوب التصنيع تبقى مشمولة بضمان الأشهر الستة.",
     "sold.out":"نفد المخزون",
     "pre.btn":"اطلب مسبقاً",
     "card.pre":"اطلب مسبقاً",
