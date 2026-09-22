@@ -722,6 +722,14 @@ body.no-scroll .pour{opacity:0}
 [dir="rtl"] .faq-item summary{padding:20px 0 20px 34px}
 [dir="rtl"] .faq-a{padding:0 0 22px 34px}
 
+
+/* ---------- rating on the cards ---------- */
+.card-stars{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  margin-top:6px; font-size:.72rem; letter-spacing:.08em; color:var(--gold);
+}
+.card-stars span{color:var(--muted-2);letter-spacing:.04em}
+
 </style>
 </head>
 <body>
@@ -1536,6 +1544,8 @@ body.no-scroll .pour{opacity:0}
         '<div class="card-spec">'+esc(unit(p.pressure))+' &middot; '+esc(unit(p.coffee_type))+'</div>'+
         '<div class="swatch-row">'+dots+'</div>'+
         '<div class="card-price">'+money(p.price)+'</div>'+
+        (REV_N ? '<div class="card-stars">'+starRow(Math.round(REV_AVG))+
+                 '<span>'+REV_AVG.toFixed(1)+' &middot; '+T("rev.count").replace("{n}", REV_N)+'</span></div>' : '')+
         '<div class="stock-tag '+st.cls+'">'+esc(st.label)+'</div>'+
         '<span class="btn btn-block'+((anyInStock(p)||anyPreorder(p))?'':' is-out')+'">'+
           (anyInStock(p)?T("card.view"):(anyPreorder(p)?T("card.pre"):T("sold.out")))+'</span>'+
@@ -1606,6 +1616,8 @@ body.no-scroll .pour{opacity:0}
       '<div class="pd-name">'+esc(p.name).toUpperCase()+'</div>'+
       '<div class="pd-spec">'+esc(unit(p.pressure))+' &middot; '+esc(unit(p.coffee_type))+' &middot; '+T("pd.selfheat")+'</div>'+
       '<div class="pd-price">'+money(p.price)+'</div>'+
+      (REV_N ? '<div class="card-stars" style="justify-content:flex-start;margin:-6px 0 14px">'+starRow(Math.round(REV_AVG))+
+               '<span>'+REV_AVG.toFixed(1)+' &middot; '+T("rev.count").replace("{n}", REV_N)+'</span></div>' : '')+
       '<div class="stock-tag" id="pdStock" style="text-align:left"></div>'+
       '<span class="field-label">'+T("pd.finish")+'</span>'+
       '<div class="opt-row" id="pdColors">'+
@@ -1908,6 +1920,7 @@ body.no-scroll .pour{opacity:0}
   /* ---------------- reviews ---------------- */
 
   var REV_STARS = 0;
+  var REV_AVG = 0, REV_N = 0;
 
   function starRow(n){
     var out="";
@@ -1930,6 +1943,8 @@ body.no-scroll .pour{opacity:0}
           return;
         }
         var avg = rows.reduce(function(n,r){ return n + r.rating; },0) / rows.length;
+        REV_AVG = avg; REV_N = rows.length;
+        renderGrid();
         document.getElementById("revScore").innerHTML =
           '<b>'+avg.toFixed(1)+'</b>'+T("rev.of")+' &middot; '+T("rev.count").replace("{n}", rows.length);
 
