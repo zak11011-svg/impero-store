@@ -576,14 +576,29 @@ body.ar .brand span{letter-spacing:.18em}
 .rev-score{margin-top:16px;font-size:.78rem;letter-spacing:.14em;color:var(--gold)}
 .rev-score b{font-family:var(--display);font-size:1.5rem;font-weight:400;margin-inline-end:8px}
 
-.rev-list{display:grid;gap:0;background:none;border:1px solid var(--line);margin-bottom:28px}
+.rev-list{margin-bottom:28px}
 @media(min-width:820px){ .rev-list{grid-template-columns:repeat(2,1fr)} }
-.rev-item{background:var(--ink);padding:24px 22px;border-top:1px solid var(--line)}
-.rev-item:first-child{border-top:0}
-@media(min-width:820px){
-  .rev-item:nth-child(2){border-top:0}
-  .rev-item:nth-child(even){border-left:1px solid var(--line)}
+.rev-track{
+  display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;overscroll-behavior-x:contain;
+  padding-bottom:2px;
 }
+.rev-track::-webkit-scrollbar{display:none}
+.rev-item{
+  flex:0 0 100%;scroll-snap-align:start;
+  background:var(--ink);border:1px solid var(--line);padding:24px 22px;
+  display:flex;flex-direction:column;
+}
+@media(min-width:820px){ .rev-item{flex-basis:calc(50% - 7px)} }
+.rev-empty{border:1px solid var(--line)}
+
+.rev-dots{display:flex;justify-content:center;gap:9px;margin-top:18px}
+.rev-dots button{
+  width:7px;height:7px;border-radius:50%;padding:0;cursor:pointer;
+  background:var(--line);border:0;transition:background .3s,transform .3s;
+}
+.rev-dots button.on{background:var(--gold);transform:scale(1.25)}
 .rev-top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:10px}
 .rev-name{font-family:var(--display);font-size:1.05rem;letter-spacing:.04em}
 .rev-when{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
@@ -705,6 +720,7 @@ body.ar .brand span{letter-spacing:.18em}
   var CFG = window.CI_CONFIG || {};
   var CUR = CFG.CURRENCY || "QAR";
   var STATUSES = ["NEW","CONFIRMED","OUT FOR DELIVERY","COMPLETED","CANCELLED"];
+  var PRE_STATUSES = ["PREORDER","CONFIRMED","OUT FOR DELIVERY","COMPLETED","CANCELLED"];
   var db = null, products = [], variants = [], orders = [], logs = [], reviews = [];
 
   function money(n){ return CUR + " " + Number(n).toFixed(0); }
@@ -837,12 +853,14 @@ body.ar .brand span{letter-spacing:.18em}
     }).length;
     var out  = variants.filter(function(v){ return v.stock<=0; }).length;
     var open = orders.filter(function(o){ return o.status!=="COMPLETED" && o.status!=="CANCELLED"; }).length;
+    var pre  = orders.filter(function(o){ return o.status==="PREORDER"; }).length;
     el("stats").innerHTML =
       '<div class="stat"><b>'+products.length+'</b><span>Products</span></div>'+
       '<div class="stat"><b>'+totalStock+'</b><span>Total stock</span></div>'+
       '<div class="stat '+(low?"warn":"")+'"><b>'+low+'</b><span>Low colours</span></div>'+
       '<div class="stat '+(out?"bad":"")+'"><b>'+out+'</b><span>Sold out colours</span></div>'+
       '<div class="stat"><b>'+open+'</b><span>Open orders</span></div>'+
+      '<div class="stat '+(pre?"warn":"")+'"><b>'+pre+'</b><span>Preorders waiting</span></div>'+
       '<div class="stat '+(reviews.filter(function(r){return !r.approved;}).length?"warn":"")+'"><b>'+
         reviews.filter(function(r){return !r.approved;}).length+'</b><span>Reviews waiting</span></div>';
 
@@ -968,10 +986,11 @@ body.ar .brand span{letter-spacing:.18em}
     var items=(o.order_items||[]).map(function(i){
       return esc(i.product_name)+" ("+esc(i.color)+") &times; "+i.qty;
     }).join("<br>");
+    var isPre = !!o.preorder;
     return ''+
-    '<div class="order" data-id="'+esc(o.id)+'">'+
+    '<div class="order" data-id="'+esc(o.id)+'" data-pre="'+(isPre?"1":"0")+'" data-status="'+esc(o.status)+'">'+
       '<div class="order-top">'+
-        '<div><div class="order-no">#'+o.order_no+'</div>'+
+        '<div><div class="order-no">#'+o.order_no+(isPre?' &middot; PREORDER':'')+'</div>'+
         '<span class="note">'+when(o.created_at)+'</span></div>'+
         '<span class="pill '+(o.status==="COMPLETED"?"in":(o.status==="CANCELLED"?"out":"low"))+'">'+esc(o.status)+'</span>'+
       '</div>'+
@@ -986,7 +1005,7 @@ body.ar .brand span{letter-spacing:.18em}
         '<dt>Total</dt><dd>'+money(o.total)+'</dd>'+
       '</dl>'+
       '<div class="status-row">'+
-        STATUSES.map(function(s){
+        (isPre?PRE_STATUSES:STATUSES).map(function(s){
           return '<button data-status="'+s+'" aria-pressed="'+(o.status===s?"true":"false")+'">'+s+'</button>';
         }).join("")+
       '</div>'+
@@ -999,6 +1018,19 @@ body.ar .brand span{letter-spacing:.18em}
       card.querySelectorAll("[data-status]").forEach(function(b){
         b.addEventListener("click", function(){
           var st=b.dataset.status;
+          // a preorder took no stock, so taking it forward must take stock now
+          if(card.dataset.pre==="1" && card.dataset.status==="PREORDER" && st!=="CANCELLED" && st!=="PREORDER"){
+            if(!confirm("Stock has arrived for this preorder? This takes the units out of stock.")) return;
+            db.rpc("fulfil_preorder",{p_order:id}).then(function(res){
+              if(res.error){ alert(res.error.message); return; }
+              if(st==="CONFIRMED"){ loadAll(); return; }
+              db.from("orders").update({status:st}).eq("id",id).then(function(r2){
+                if(r2.error){ alert(r2.error.message); return; }
+                loadAll();
+              });
+            });
+            return;
+          }
           if(st==="CANCELLED"){
             if(!confirm("Cancel this order and return its stock?")) return;
             db.rpc("cancel_order",{p_order:id}).then(function(res){

@@ -989,16 +989,16 @@ body.ar .brand span{letter-spacing:.18em}
   // Used only when the database cannot be reached.
   var FALLBACK = [
     { id:"core", name:"Impero Core", model:"Core", pressure:"20 Bar", battery:"9600mAh",
-      coffee_type:"3-in-1", price:239, stock:null, low_stock_at:3, active:true, sort_order:1,
+      coffee_type:"3-in-1", price:259, stock:null, low_stock_at:3, active:true, sort_order:1,
       colors:[{name:"Green",hex:"#2F4A34"},
               {name:"White",hex:"#EDEDEA"},
               {name:"Black",hex:"#1A1A1A"}] },
     { id:"pro", name:"Impero Pro", model:"Pro", pressure:"25 Bar", battery:"9600mAh",
-      coffee_type:"3-in-1", price:279, stock:null, low_stock_at:3, active:true, sort_order:2,
+      coffee_type:"3-in-1", price:299, stock:null, low_stock_at:3, active:true, sort_order:2,
       colors:[{name:"White",hex:"#EDEDEA"},
               {name:"Black",hex:"#1A1A1A"}] },
     { id:"elite", name:"Impero Elite", model:"Elite", pressure:"25 Bar", battery:"9600mAh",
-      coffee_type:"4-in-1", price:309, stock:null, low_stock_at:3, active:true, sort_order:3,
+      coffee_type:"4-in-1", price:329, stock:null, low_stock_at:3, active:true, sort_order:3,
       colors:[{name:"Black",hex:"#1A1A1A"},
               {name:"White",hex:"#EDEDEA"}] }
   ];
@@ -1090,6 +1090,14 @@ body.ar .brand span{letter-spacing:.18em}
     "sp.material":"المادة","sp.materialv":"ستانلس ستيل",
     "sp.brewing":"طرق التحضير",
     "sold.out":"نفد المخزون",
+    "pre.btn":"اطلب مسبقاً",
+    "card.pre":"اطلب مسبقاً",
+    "pre.tag":"نفد المخزون، الطلب المسبق متاح",
+    "pre.wait":"طلب مسبق. متوقع خلال ثلاثة إلى أربعة أسابيع تقريباً. لا تدفع شيئاً الآن، الدفع عند الاستلام.",
+    "pre.submit":"تأكيد الطلب المسبق",
+    "pre.done":"تم استلام طلبك المسبق",
+    "pre.note":"سنتصل بك فور وصول الجهاز، قبل الشحن.",
+    "pre.title":"طلب مسبق",
     "bag.empty":"سلّتك فارغة.",
     "bag.remove":"إزالة",
     "co.total":"الإجمالي عند الاستلام",
@@ -1162,7 +1170,19 @@ body.ar .brand span{letter-spacing:.18em}
     "rev.err.name":"Please enter your name.",
     "rev.err.rating":"Please choose a rating.",
     "rev.err.text":"Please write your review.",
-    "rev.err.send":"Could not send the review. Please try again."
+    "rev.err.send":"Could not send the review. Please try again.",
+    "pre.btn":"Preorder",
+    "card.pre":"Preorder",
+    "pre.tag":"Sold out, preorder open",
+    "pre.wait":"Preorder. Expected in about 3 to 4 weeks. Nothing to pay now, cash on delivery when it arrives.",
+    "pre.submit":"Place preorder",
+    "pre.done":"Preorder received",
+    "pre.note":"We will call you as soon as your machine arrives, before we send it out.",
+    "pre.title":"Preorder",
+    "panel.cod":"Cash on delivery",
+    "form.submit":"Place order",
+    "done.eyebrow":"Order received",
+    "done.note":"We will call or message you to confirm before dispatch. You can also send us a copy on WhatsApp if you prefer."
   };
 
   var LANG = "en";
@@ -1260,8 +1280,12 @@ body.ar .brand span{letter-spacing:.18em}
     if (!LIVE || !c || c.stock === null || c.stock === undefined) {
       return { label:"", cls:"", sellable:true, max:20 };
     }
-    if (!p.active || c.active === false || c.stock <= 0) {
+    if (!p.active || c.active === false) {
       return { label:T("stock.out"), cls:"out", sellable:false, max:0 };
+    }
+    if (c.stock <= 0) {
+      // out of stock, but the customer can still reserve one
+      return { label:T("pre.tag"), cls:"out", sellable:false, preorder:true, max:PRE_MAX };
     }
     if (c.stock <= (p.low_stock_at || 3)) {
       return { label:T("stock.only").replace("{n}", c.stock), cls:"low", sellable:true, max:c.stock };
@@ -1274,6 +1298,17 @@ body.ar .brand span{letter-spacing:.18em}
     if (!LIVE) return true;
     return (p.colors||[]).some(function(c){
       return c.active !== false && (c.stock === null || c.stock === undefined || c.stock > 0);
+    });
+  }
+
+  // most units a customer may reserve in one preorder
+  var PRE_MAX = 3;
+
+  // can this machine be preordered in any colour
+  function anyPreorder(p){
+    if (!LIVE || !p.active) return false;
+    return (p.colors||[]).some(function(c){
+      return c.active !== false && c.stock !== null && c.stock !== undefined && c.stock <= 0;
     });
   }
 
@@ -1334,8 +1369,8 @@ body.ar .brand span{letter-spacing:.18em}
         '<div class="swatch-row">'+dots+'</div>'+
         '<div class="card-price">'+money(p.price)+'</div>'+
         '<div class="stock-tag '+st.cls+'">'+esc(st.label)+'</div>'+
-        '<span class="btn btn-block'+(anyInStock(p)?'':' is-out')+'">'+
-          (anyInStock(p)?T("card.view"):T("sold.out"))+'</span>'+
+        '<span class="btn btn-block'+((anyInStock(p)||anyPreorder(p))?'':' is-out')+'">'+
+          (anyInStock(p)?T("card.view"):(anyPreorder(p)?T("card.pre"):T("sold.out")))+'</span>'+
       '</article>';
     }).join("");
 
@@ -1444,7 +1479,7 @@ body.ar .brand span{letter-spacing:.18em}
 
     var foot=document.getElementById("pdFoot");
     foot.innerHTML='<button class="btn btn-solid btn-block" id="pdAdd">'+T("pd.add")+'</button>'+
-      '<p class="note" style="margin-top:12px">'+T("pd.note")+'</p>';
+      '<p class="note" style="margin-top:12px" id="pdNote">'+T("pd.note")+'</p>';
 
     var qi=document.getElementById("pdQty");
     var add=document.getElementById("pdAdd");
@@ -1455,8 +1490,10 @@ body.ar .brand span{letter-spacing:.18em}
       tag.className="stock-tag "+st.cls; tag.textContent=st.label;
       qi.max = st.max || 20;
       if(parseInt(qi.value,10) > qi.max) qi.value = Math.max(1, qi.max);
-      add.disabled = !st.sellable;
-      add.textContent = st.sellable ? T("pd.add") : T("sold.out");
+      add.disabled = !(st.sellable || st.preorder);
+      add.textContent = st.sellable ? T("pd.add") : (st.preorder ? T("pre.btn") : T("sold.out"));
+      var pn=document.getElementById("pdNote");
+      if(pn) pn.textContent = st.preorder ? T("pre.wait") : T("pd.note");
       var c=(p.colors||[]).filter(function(x){return x.name===currentColor;})[0];
       if(c) document.getElementById("pdImg").src=pic(p.id,c.name,"");
       body.querySelectorAll("#pdColors .opt").forEach(function(x){
@@ -1475,6 +1512,12 @@ body.ar .brand span{letter-spacing:.18em}
     });
     add.addEventListener("click",function(){
       var q = Math.max(1,parseInt(qi.value,10)||1);
+      var st = stockLine();
+      if(!st.sellable && st.preorder){
+        q = Math.min(PRE_MAX, q);
+        openCheckout({ id:p.id, color:currentColor, qty:q });
+        return;
+      }
       Bag.add(p.id,currentColor,q);
       fb("AddToCart", { content_ids:[p.id], content_name:p.name, content_type:"product", value:Number(p.price)*q, currency:"QAR" });
       openBag();
@@ -1533,19 +1576,40 @@ body.ar .brand span{letter-spacing:.18em}
 
   /* ---------------- checkout ---------------- */
 
-  function openCheckout(){
-    var lines=Bag.lines(); if(!lines.length) return;
+  // one-item preorder, kept outside the bag
+  var PRE = null;
+
+  function preLines(pre){
+    var p=find(pre.id); if(!p) return [];
+    var c=(p.colors||[]).filter(function(x){return x.name===pre.color;})[0] || {};
+    return [{ id:p.id, name:p.name, color:pre.color, img:pic(p.id,pre.color,c.img),
+              price:Number(p.price), qty:pre.qty, sub:Number(p.price)*pre.qty }];
+  }
+
+  function sumOf(lines){ return lines.reduce(function(n,l){ return n+l.sub; },0); }
+
+  function openCheckout(pre){
+    PRE = (pre && pre.id) ? pre : null;
+    var lines = PRE ? preLines(PRE) : Bag.lines();
+    if(!lines.length) return;
     document.getElementById("coSummary").innerHTML =
+      (PRE ? '<p class="note" style="margin-bottom:16px">'+T("pre.wait")+'</p>' : '')+
       lines.map(function(l){
         return '<div class="line-foot" style="padding:9px 0;border-bottom:1px solid var(--line);font-size:.82rem">'+
                '<span>'+esc(l.name)+', '+esc(colorName(l.color))+' &times; '+l.qty+'</span><span>'+money(l.sub)+'</span></div>';
       }).join("")+
-      '<div class="totals" style="margin-top:16px"><span class="field-label" style="margin:0">'+T("co.total")+'</span><b>'+money(Bag.total())+'</b></div>';
+      '<div class="totals" style="margin-top:16px"><span class="field-label" style="margin:0">'+T("co.total")+'</span><b>'+money(sumOf(lines))+'</b></div>';
+    var head=checkoutPanel.querySelector(".panel-head h2");
+    if(head) head.textContent = PRE ? T("pre.title") : T("panel.cod");
+    var sb=document.getElementById("coSubmit");
+    if(sb) sb.textContent = PRE ? T("pre.submit") : T("form.submit");
     document.getElementById("coForm").style.display="";
     document.getElementById("coDone").hidden=true;
     document.getElementById("coAlert").classList.remove("on");
     openPanel(checkoutPanel);
-    fb("InitiateCheckout", { content_ids:lines.map(function(l){return l.id;}), num_items:lines.reduce(function(n,l){return n+l.qty;},0), value:Bag.total(), currency:"QAR" });
+    if(!PRE){
+      fb("InitiateCheckout", { content_ids:lines.map(function(l){return l.id;}), num_items:lines.reduce(function(n,l){return n+l.qty;},0), value:sumOf(lines), currency:"QAR" });
+    }
   }
 
   function submitOrder(e){
@@ -1561,23 +1625,30 @@ body.ar .brand span{letter-spacing:.18em}
     });
     if(!ok) return;
 
-    var lines=Bag.lines();
+    var isPre = !!PRE;
+    var lines = isPre ? preLines(PRE) : Bag.lines();
+    var total = sumOf(lines);
     var alertBox=document.getElementById("coAlert");
     var btn=document.getElementById("coSubmit");
+    var btnLabel = isPre ? T("pre.submit") : T("form.submit");
     btn.disabled=true; btn.textContent="...";
-
 
     var payload={
       p_name:f.fullName.value.trim(), p_phone:f.phone.value.trim(),
       p_area:f.area.value.trim(), p_address:f.address.value.trim(),
       p_notes:f.notes.value.trim(),
-      p_items:Bag.read().map(function(l){ return {id:l.id,color:l.color,qty:l.qty}; })
+      p_items: isPre
+        ? [{id:PRE.id, color:PRE.color, qty:PRE.qty}]
+        : Bag.read().map(function(l){ return {id:l.id,color:l.color,qty:l.qty}; })
     };
 
     function waText(orderNo){
-      var t="COFFEE IMPERO"+(orderNo?", order #"+orderNo:", order")+"\n\n";
+      var head = isPre ? "COFFEE IMPERO, PREORDER" : "COFFEE IMPERO";
+      var t=head+(orderNo?", #"+orderNo:"")+"\n\n";
       lines.forEach(function(l){ t+=l.name+" ("+l.color+") x"+l.qty+" = "+money(l.sub)+"\n"; });
-      t+="\nTotal on delivery: "+money(Bag.total())+"\nDelivery: free, across Qatar\n\n";
+      t+="\nTotal on delivery: "+money(total)+"\nDelivery: free, across Qatar\n";
+      if(isPre) t+="Expected in about 3 to 4 weeks\n";
+      t+="\n";
       t+="Name: "+payload.p_name+"\nPhone: "+payload.p_phone+"\nArea: "+payload.p_area+"\nAddress: "+payload.p_address+"\n";
       if(payload.p_notes) t+="Notes: "+payload.p_notes+"\n";
       return t;
@@ -1586,10 +1657,10 @@ body.ar .brand span{letter-spacing:.18em}
     function track(orderNo){
       if (typeof window.gtag !== "function") return;
       try {
-        window.gtag("event", "purchase", {
+        window.gtag("event", isPre ? "preorder" : "purchase", {
           transaction_id: orderNo ? String(orderNo) : ("local-" + Date.now()),
           currency: "QAR",
-          value: Bag.total(),
+          value: total,
           items: lines.map(function(l){
             return { item_id: l.id, item_name: l.name, item_variant: l.color, price: l.price, quantity: l.qty };
           })
@@ -1599,34 +1670,49 @@ body.ar .brand span{letter-spacing:.18em}
 
     function done(orderNo){
       track(orderNo);
-      fb("Purchase", {
-        content_ids: lines.map(function(l){ return l.id; }),
-        contents: lines.map(function(l){ return { id:l.id, quantity:l.qty, item_price:l.price }; }),
-        content_type: "product",
-        num_items: lines.reduce(function(n,l){ return n + l.qty; }, 0),
-        value: Bag.total(),
-        currency: "QAR"
-      }, { eventID: orderNo ? ("order-" + orderNo) : undefined });
+      if(isPre){
+        // a preorder is not a sale yet, so it must not fire Purchase
+        fb("Lead", {
+          content_ids: lines.map(function(l){ return l.id; }),
+          content_category: "preorder",
+          value: total,
+          currency: "QAR"
+        }, { eventID: orderNo ? ("preorder-" + orderNo) : undefined });
+      } else {
+        fb("Purchase", {
+          content_ids: lines.map(function(l){ return l.id; }),
+          contents: lines.map(function(l){ return { id:l.id, quantity:l.qty, item_price:l.price }; }),
+          content_type: "product",
+          num_items: lines.reduce(function(n,l){ return n + l.qty; }, 0),
+          value: total,
+          currency: "QAR"
+        }, { eventID: orderNo ? ("order-" + orderNo) : undefined });
+      }
       var url="https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(waText(orderNo));
       document.getElementById("coDoneNo").textContent = orderNo ? "#"+orderNo : "";
       document.getElementById("coWa").href=url;
+      var eyebrow = document.querySelector("#coDone .eyebrow");
+      if(eyebrow) eyebrow.textContent = isPre ? T("pre.done") : T("done.eyebrow");
+      var dnote = document.querySelector("#coDone .note");
+      if(dnote) dnote.textContent = isPre ? T("pre.note") : T("done.note");
       f.style.display="none";
       document.getElementById("coDone").hidden=false;
-      Bag.clear();
+      if(!isPre) Bag.clear();
+      PRE = null;
       loadProducts().then(function(){ renderGrid(); renderCompare(); });
-      btn.disabled=false; btn.textContent=T("form.submit");
+      btn.disabled=false; btn.textContent=btnLabel;
     }
 
     if(!db){ done(null); return; }
 
-    db.rpc("place_order", payload).then(function(res){
+    db.rpc(isPre ? "place_preorder" : "place_order", payload).then(function(res){
       if(res.error) throw res.error;
       var row = Array.isArray(res.data)?res.data[0]:res.data;
       done(row && row.order_no);
     }).catch(function(err){
       alertBox.textContent = (err && err.message) ? err.message : T("err.generic");
       alertBox.classList.add("on");
-      btn.disabled=false; btn.textContent=T("form.submit");
+      btn.disabled=false; btn.textContent=btnLabel;
       loadProducts().then(function(){ renderGrid(); renderCompare(); paintBag(); });
     });
   }
@@ -1821,7 +1907,7 @@ body.ar .brand span{letter-spacing:.18em}
     document.querySelectorAll("[data-close]").forEach(function(b){ b.addEventListener("click",closePanels); });
     document.addEventListener("keydown",function(e){ if(e.key==="Escape") closePanels(); });
     document.querySelectorAll("[data-bag]").forEach(function(b){ b.addEventListener("click",function(ev){ ev.preventDefault(); openBag(); }); });
-    document.getElementById("toCheckout").addEventListener("click",openCheckout);
+    document.getElementById("toCheckout").addEventListener("click",function(){ openCheckout(); });
     document.getElementById("coForm").addEventListener("submit",submitOrder);
 
     var mb=document.getElementById("menuBtn"), mn=document.getElementById("mnav");
