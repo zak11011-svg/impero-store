@@ -1176,7 +1176,7 @@ body.no-scroll .pour{opacity:0}
 
   function mediaFor(p, colorName, cls){
     var key = String(p.id).toLowerCase() + "|" + String(colorName||"").toLowerCase();
-    var src = VIDEO_FOR[key];
+    var src = (cls === "card") ? VIDEO_FOR[key] : null;
     if(src){
       return '<video class="'+cls+'-video" src="'+src+'" poster="'+esc(pic(p.id,colorName,""))+'"'+
              ' autoplay muted loop playsinline preload="metadata"'+
