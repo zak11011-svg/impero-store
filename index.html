@@ -277,14 +277,10 @@ p{margin:0}
 .card-video{
   max-height:100%;max-width:100%;width:auto;object-fit:cover;
   transition:transform .8s var(--ease);
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 13%, #000 87%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 11%, #000 89%, transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-image:
-    linear-gradient(to right, transparent 0, #000 13%, #000 87%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 11%, #000 89%, transparent 100%);
-  mask-composite:intersect;
+  -webkit-mask-image:radial-gradient(ellipse 78% 76% at 50% 50%, #000 46%, rgba(0,0,0,.6) 72%, transparent 100%);
+  mask-image:radial-gradient(ellipse 78% 76% at 50% 50%, #000 46%, rgba(0,0,0,.6) 72%, transparent 100%);
+  -webkit-mask-size:100% 100%; mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
 }
 .card:hover .card-video{transform:scale(1.03)}
 .card:hover .card-img img{transform:scale(1.05)}
@@ -743,6 +739,20 @@ body.no-scroll .pour{opacity:0}
   margin-top:6px; font-size:.72rem; letter-spacing:.08em; color:var(--gold);
 }
 .card-stars span{color:var(--muted-2);letter-spacing:.04em}
+
+
+/* ---------- reassurance beside the price ---------- */
+.pd-trust{
+  display:flex; flex-direction:column; gap:5px;
+  margin:10px 0 22px; padding:12px 14px;
+  border:1px solid var(--line); border-inline-start:2px solid var(--gold);
+  background:rgba(201,162,106,.05);
+  font-size:.8rem; color:var(--ivory); line-height:1.5;
+}
+.pd-trust span:last-child{color:var(--muted)}
+
+/* the whatsapp button steps aside while someone is checking out */
+body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
 
 </style>
 </head>
@@ -1271,6 +1281,8 @@ body.no-scroll .pour{opacity:0}
     "sp.material":"المادة","sp.materialv":"ستانلس ستيل",
     "sp.brewing":"طرق التحضير",
     "nav.faq":"الأسئلة الشائعة",
+    "trust.cod":"ادفع نقداً عند الاستلام. لا تدفع شيئاً الآن.",
+    "trust.delivery":"توصيل مجاني في كل قطر، من نفس اليوم إلى ثلاثة أيام.",
     "faq.eyebrow":"أسئلة",
     "faq.title":"معلومات تهمّك.",
     "faq.q1":"ما الكبسولات التي تناسبها؟",
@@ -1384,6 +1396,8 @@ body.no-scroll .pour{opacity:0}
     "pre.note":"We will call you as soon as your machine arrives, before we send it out.",
     "pre.title":"Preorder",
     "panel.cod":"Cash on delivery",
+    "trust.cod":"Pay cash when it arrives. Nothing online today.",
+    "trust.delivery":"Free delivery across Qatar, same day to three days.",
     "form.submit":"Place order",
     "done.eyebrow":"Order received",
     "done.note":"We will call or message you to confirm before dispatch. You can also send us a copy on WhatsApp if you prefer."
@@ -1637,10 +1651,12 @@ body.no-scroll .pour{opacity:0}
     [productPanel,bagPanel,checkoutPanel].forEach(function(p){ if(p&&p!==el) p.classList.remove("open"); });
     el.classList.add("open"); el.setAttribute("aria-hidden","false");
     scrim.classList.add("open"); document.body.classList.add("no-scroll");
+    document.body.classList.toggle("in-checkout", el === checkoutPanel);
   }
   function closePanels(){
     [productPanel,bagPanel,checkoutPanel].forEach(function(p){ if(p){p.classList.remove("open");p.setAttribute("aria-hidden","true");} });
     scrim.classList.remove("open"); document.body.classList.remove("no-scroll");
+    document.body.classList.remove("in-checkout");
   }
 
   function openProduct(id, preferColor){
@@ -1659,6 +1675,10 @@ body.no-scroll .pour{opacity:0}
       (REV_N ? '<div class="card-stars" style="justify-content:flex-start;margin:-6px 0 14px">'+starRow(Math.round(REV_AVG))+
                '<span>'+REV_AVG.toFixed(1)+' &middot; '+T("rev.count").replace("{n}", REV_N)+'</span></div>' : '')+
       '<div class="stock-tag" id="pdStock" style="text-align:left"></div>'+
+      '<div class="pd-trust">'+
+        '<span>'+T("trust.cod")+'</span>'+
+        '<span>'+T("trust.delivery")+'</span>'+
+      '</div>'+
       '<span class="field-label">'+T("pd.finish")+'</span>'+
       '<div class="opt-row" id="pdColors">'+
         (p.colors||[]).map(function(c){
