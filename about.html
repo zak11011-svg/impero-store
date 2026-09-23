@@ -22,7 +22,7 @@ fbq('track', 'PageView');
 </script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>About | Coffee Impero</title>
+<title>About Coffee Impero | Portable Espresso in Qatar</title>
 
 <!-- ===== SETTINGS: paste your Supabase key below ===== -->
 <script>
@@ -54,7 +54,7 @@ window.CI_CONFIG = {
 <meta name="description" content="The story behind Coffee Impero, portable espresso machines made in Qatar for people who move.">
 <link rel="canonical" href="https://coffeeimpero.com/about.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="About | Coffee Impero">
+<meta property="og:title" content="About Coffee Impero | Portable Espresso in Qatar">
 <meta property="og:description" content="The story behind Coffee Impero.">
 <meta property="og:image" content="https://coffeeimpero.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -271,10 +271,19 @@ p{margin:0}
 .card:hover .btn.is-out{background:transparent;color:var(--gold)}
 .card-img{position:relative;display:flex;justify-content:center;align-items:flex-end;height:270px;margin-bottom:26px}
 .card-img img{max-height:100%;width:auto;transition:transform .8s var(--ease);filter:drop-shadow(0 26px 34px rgba(0,0,0,.6))}
+.card-video{
+  max-height:100%;max-width:100%;width:auto;object-fit:cover;
+  transition:transform .8s var(--ease);
+  -webkit-mask-image:radial-gradient(ellipse 78% 76% at 50% 50%, #000 46%, rgba(0,0,0,.6) 72%, transparent 100%);
+  mask-image:radial-gradient(ellipse 78% 76% at 50% 50%, #000 46%, rgba(0,0,0,.6) 72%, transparent 100%);
+  -webkit-mask-size:100% 100%; mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+}
+.card:hover .card-video{transform:scale(1.03)}
 .card:hover .card-img img{transform:scale(1.05)}
 .card h3{font-family:var(--display);font-size:1.6rem;letter-spacing:.06em;margin-bottom:10px}
 .card-spec{font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
-.card-price{font-family:var(--display);font-size:1.4rem;margin-bottom:20px}
+.card-price{font-family:var(--ui);font-size:1.12rem;font-weight:500;letter-spacing:.08em;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1;margin-bottom:20px}
 .card .btn{margin-top:auto}
 
 .stock-tag{
@@ -377,9 +386,10 @@ p{margin:0}
 /* product detail inside the panel */
 .pd-img{display:flex;justify-content:center;margin-bottom:24px}
 .pd-img img{max-height:300px;width:auto;filter:drop-shadow(0 26px 40px rgba(0,0,0,.7))}
+.pd-video{max-height:300px;max-width:100%;width:auto;border-radius:5px;filter:drop-shadow(0 26px 40px rgba(0,0,0,.7))}
 .pd-name{font-family:var(--display);font-size:2rem;letter-spacing:.05em;margin-bottom:8px}
 .pd-spec{font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
-.pd-price{font-family:var(--display);font-size:1.5rem;margin-bottom:24px}
+.pd-price{font-family:var(--ui);font-size:1.22rem;font-weight:500;letter-spacing:.08em;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1;margin-bottom:24px}
 .field-label{display:block;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
 .opt-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:24px}
 .opt{
@@ -413,7 +423,7 @@ p{margin:0}
 .empty{padding:60px 0;text-align:center;color:var(--muted)}
 
 .totals{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
-.totals b{font-family:var(--display);font-size:1.45rem;font-weight:400}
+.totals b{font-family:var(--ui);font-size:1.16rem;font-weight:500;letter-spacing:.06em;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1}
 
 /* forms */
 .field{margin-bottom:16px}
@@ -718,6 +728,28 @@ body.no-scroll .pour{opacity:0}
 .faq-a{padding:0 34px 22px 0;color:var(--muted);font-size:.86rem;line-height:1.75}
 [dir="rtl"] .faq-item summary{padding:20px 0 20px 34px}
 [dir="rtl"] .faq-a{padding:0 0 22px 34px}
+
+
+/* ---------- rating on the cards ---------- */
+.card-stars{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  margin-top:6px; font-size:.72rem; letter-spacing:.08em; color:var(--gold);
+}
+.card-stars span{color:var(--muted-2);letter-spacing:.04em}
+
+
+/* ---------- reassurance beside the price ---------- */
+.pd-trust{
+  display:flex; flex-direction:column; gap:5px;
+  margin:10px 0 22px; padding:12px 14px;
+  border:1px solid var(--line); border-inline-start:2px solid var(--gold);
+  background:rgba(201,162,106,.05);
+  font-size:.8rem; color:var(--ivory); line-height:1.5;
+}
+.pd-trust span:last-child{color:var(--muted)}
+
+/* the whatsapp button steps aside while someone is checking out */
+body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
 
 </style>
 </head>
