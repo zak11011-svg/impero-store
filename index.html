@@ -1541,10 +1541,21 @@ body.no-scroll .pour{opacity:0}
 
   /* ---------------- render: collection ---------------- */
 
+  // the card always leads with the colour that has a brewing clip
+  function leadColor(p){
+    var found = null;
+    (p.colors||[]).forEach(function(c){
+      var key = String(p.id).toLowerCase() + "|" + String(c.name).toLowerCase();
+      if(VIDEO_FOR[key] && c.active !== false && !found) found = c.name;
+    });
+    return found || firstAvailable(p);
+  }
+
   function renderGrid(){
     var g=document.getElementById("grid"); if(!g) return;
     g.innerHTML = PRODUCTS.map(function(p){
-      var sel = firstAvailable(p);
+      var sel = leadColor(p);            // what the card shows
+      var open = firstAvailable(p);      // what the panel opens on
       var st = colorState(p, sel);
       var img = pic(p.id, sel, "");
       var dots=(p.colors||[]).map(function(c){
@@ -1555,7 +1566,7 @@ body.no-scroll .pour{opacity:0}
                ' aria-label="'+esc(colorName(c.name))+(out?(", "+T("sold.out")):"")+'" title="'+esc(colorName(c.name))+(out?(", "+T("sold.out")):"")+'"></button>';
       }).join("");
       return ''+
-      '<article class="card rv" data-open="'+esc(p.id)+'" data-sel="'+esc(sel)+'" role="button" tabindex="0" aria-label="View '+esc(p.name)+'">'+
+      '<article class="card rv" data-open="'+esc(p.id)+'" data-sel="'+esc(sel)+'" data-osel="'+esc(open)+'" role="button" tabindex="0" aria-label="View '+esc(p.name)+'">'+
         '<div class="card-img">'+mediaFor(p, sel, "card")+'</div>'+
         '<h3>'+esc(p.name).toUpperCase()+'</h3>'+
         '<div class="card-spec">'+esc(unit(p.pressure))+' &middot; '+esc(unit(p.coffee_type))+'</div>'+
@@ -1577,6 +1588,7 @@ body.no-scroll .pour{opacity:0}
         var p = find(card.dataset.open);
         var name = d.dataset.sw;
         card.dataset.sel = name;
+        card.dataset.osel = name;
         var holder = card.querySelector(".card-img");
         if(holder) holder.innerHTML = mediaFor(p, name, "card");
         card.querySelectorAll("[data-sw]").forEach(function(x){ x.classList.toggle("on", x===d); });
@@ -1588,9 +1600,9 @@ body.no-scroll .pour{opacity:0}
     });
 
     g.querySelectorAll("[data-open]").forEach(function(b){
-      b.addEventListener("click",function(){ openProduct(b.dataset.open, b.dataset.sel); });
+      b.addEventListener("click",function(){ openProduct(b.dataset.open, b.dataset.osel || b.dataset.sel); });
       b.addEventListener("keydown",function(ev){
-        if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); openProduct(b.dataset.open, b.dataset.sel); }
+        if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); openProduct(b.dataset.open, b.dataset.osel || b.dataset.sel); }
       });
     });
     observe(g.querySelectorAll(".rv"));
