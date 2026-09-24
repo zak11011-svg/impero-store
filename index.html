@@ -1730,19 +1730,40 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
   var scrim, productPanel, bagPanel, checkoutPanel, current=null, currentColor=null;
 
   function openPanel(el){
+    if(el !== productPanel && pdHash()){
+      try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
+      PD_PUSHED = false;
+    }
     [productPanel,bagPanel,checkoutPanel].forEach(function(p){ if(p&&p!==el) p.classList.remove("open"); });
     el.classList.add("open"); el.setAttribute("aria-hidden","false");
     scrim.classList.add("open"); document.body.classList.add("no-scroll");
     document.body.classList.toggle("in-checkout", el === checkoutPanel);
   }
+  // each machine gets its own address (#core, #pro, #elite), so a refresh
+  // or a shared link opens the same machine, and Back closes the panel
+  var PD_PUSHED = false;
+  function pdHash(){ var h=(location.hash||"").slice(1).toLowerCase(); return find(h) ? h : null; }
   function closePanels(){
+    if(pdHash()){
+      if(PD_PUSHED){ PD_PUSHED=false; history.back(); return; }
+      try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
+    }
+    hidePanels();
+  }
+  function hidePanels(){
     [productPanel,bagPanel,checkoutPanel].forEach(function(p){ if(p){p.classList.remove("open");p.setAttribute("aria-hidden","true");} });
     scrim.classList.remove("open"); document.body.classList.remove("no-scroll");
     document.body.classList.remove("in-checkout");
   }
 
-  function openProduct(id, preferColor){
+  function openProduct(id, preferColor, noHistory){
     var p=find(id); if(!p) return;
+    if(!noHistory && pdHash() !== p.id){
+      try{
+        if(pdHash()) history.replaceState({pd:p.id}, "", "#"+p.id);
+        else { history.pushState({pd:p.id}, "", "#"+p.id); PD_PUSHED = true; }
+      }catch(e){}
+    }
     current=p;
     currentColor = preferColor || firstAvailable(p);
 
@@ -2393,8 +2414,20 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     // draw straight away from the built-in catalogue so the page does not
     // jump when the live stock arrives a moment later
     PRODUCTS = FALLBACK.slice(); renderGrid(); renderCompare();
+    if(pdHash()) openProduct(pdHash(), null, true);
+    window.addEventListener("popstate", function(){
+      var h = pdHash();
+      if(h) openProduct(h, null, true);
+      else { PD_PUSHED = false; if(productPanel.classList.contains("open")) hidePanels(); }
+    });
     loadProducts().then(function(){
       renderGrid(); renderCompare(); paint();
+      // refresh an open machine with live stock, keeping the chosen colour
+      if(current && productPanel.classList.contains("open")){
+        var st = document.getElementById("pdBody"), top = st ? st.scrollTop : 0;
+        openProduct(current.id, currentColor, true);
+        if(st) st.scrollTop = top;
+      }
       loadReviews();
     });
   }
