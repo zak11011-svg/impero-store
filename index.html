@@ -383,7 +383,7 @@ p{margin:0}
 .panel.open{transform:none;visibility:visible}
 .panel-head{display:flex;align-items:center;justify-content:space-between;padding:20px var(--pad);border-bottom:1px solid var(--line)}
 .panel-head h2{font-family:var(--ui);font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
-.panel-body{flex:1;overflow-y:auto;padding:var(--pad);-webkit-overflow-scrolling:touch}
+.panel-body{flex:1;overflow-y:auto;padding:var(--pad);overscroll-behavior:contain;transform:translateZ(0);-webkit-transform:translateZ(0)}
 .panel-foot{padding:var(--pad);padding-bottom:calc(var(--pad) + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
 
 /* product detail inside the panel */
@@ -1700,7 +1700,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
 
     var body=document.getElementById("pdBody");
     body.innerHTML=''+
-      '<div class="pd-img" id="pdMedia">'+mediaFor(p, currentColor, "pd")+'</div>'+
+      '<div class="pd-img" id="pdMedia" data-color="'+esc(currentColor)+'">'+mediaFor(p, currentColor, "pd")+'</div>'+
       '<div class="pd-name">'+esc(p.name).toUpperCase()+'</div>'+
       '<div class="pd-spec">'+esc(unit(p.pressure))+' &middot; '+esc(unit(p.coffee_type))+' &middot; '+T("pd.selfheat")+'</div>'+
       '<div class="pd-price">'+money(p.price)+'</div>'+
@@ -1767,8 +1767,14 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
       add.textContent = st.sellable ? T("pd.add") : (st.preorder ? T("pre.btn") : T("sold.out"));
       var pn=document.getElementById("pdNote");
       if(pn) pn.textContent = st.preorder ? T("pre.wait") : T("pd.note");
+      // swap the picture in place, and only when it actually changes,
+      // so iPhone Safari does not leave a ghost of the old layer behind
       var holder=document.getElementById("pdMedia");
-      if(holder) holder.innerHTML=mediaFor(p, currentColor, "pd");
+      if(holder && holder.dataset.color !== currentColor){
+        var img=holder.querySelector("img"), src=pic(p.id, currentColor, "");
+        if(img && src) img.src=src; else holder.innerHTML=mediaFor(p, currentColor, "pd");
+        holder.dataset.color = currentColor;
+      }
       body.querySelectorAll("#pdColors .opt").forEach(function(x){
         x.setAttribute("aria-pressed", x.dataset.color===currentColor?"true":"false");
       });
