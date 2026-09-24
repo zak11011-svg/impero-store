@@ -236,7 +236,7 @@ p{margin:0}
   .hero .lede{margin:0 0 38px}
   .hero-fig img{width:min(34vw,440px)}
   .hero-video{width:100%;max-width:620px}
-  .hero-actions{justify-content:flex-start}
+  .hero .hero-actions{justify-content:flex-start}
 }
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 
@@ -347,7 +347,7 @@ p{margin:0}
 .pair{display:grid;gap:14px}
 @media(min-width:800px){.pair{grid-template-columns:1fr 1fr}}
 .pair figure{margin:0;position:relative;overflow:hidden}
-.pair img{width:100%;height:auto;display:block;opacity:.82;transition:transform 1.4s var(--ease),opacity .6s}
+.pair img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;display:block;opacity:.82;transition:transform 1.4s var(--ease),opacity .6s}
 .pair figure:hover img{transform:scale(1.04);opacity:.92}
 .pair figcaption{
   position:absolute;left:20px;right:20px;bottom:18px;
