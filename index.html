@@ -658,6 +658,12 @@ body.ar .brand span{letter-spacing:.18em}
 .rev-thanks{border:1px solid var(--line-gold);padding:26px 22px;margin-top:26px}
 
 /* ---------- in the box ---------- */
+.pd-revs{margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
+.pd-rev{border:1px solid var(--line);background:var(--ink);padding:18px;margin-top:12px}
+.pd-rev .rev-text{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;font-size:.86rem}
+.pd-rev .rev-text.full{display:block;-webkit-line-clamp:unset}
+.pd-rev .rev-stars{margin-bottom:8px}
+.pd-revs-all{display:inline-block;margin-top:14px;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);cursor:pointer;background:none;border:0;padding:0}
 .inbox{margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
 .inbox ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:9px}
 .inbox li{display:flex;gap:10px;align-items:baseline;font-size:.84rem;color:var(--ivory)}
@@ -1371,6 +1377,8 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     "rev.of":"من 5",
     "rev.count":"{n} رأي",
     "rev.one":"رأي واحد",
+    "pd.reviews":"آراء من اشتروها",
+    "pd.reviews.all":"عرض كل الآراء ({n})",
     "rev.product":"أي آلة لديك؟",
     "rev.pick":"اختر آلتك",
     "rev.err.product":"الرجاء اختيار الآلة.",
@@ -1409,6 +1417,8 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     "rev.of":"out of 5",
     "rev.count":"{n} reviews",
     "rev.one":"1 review",
+    "pd.reviews":"What owners say",
+    "pd.reviews.all":"See all {n} reviews",
     "rev.product":"Which machine do you have?",
     "rev.pick":"Choose your machine",
     "rev.err.product":"Please choose your machine.",
@@ -1738,6 +1748,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
         '<div><dt>'+T("sp.brewing")+'</dt><dd>'+esc(unit(p.coffee_type))+'</dd></div>'+
         '<div><dt>'+T("sp.screen")+'</dt><dd>'+(p.id==="core"?T("cmp.no"):T("sp.screenv"))+'</dd></div>'+
       '</dl>'+
+      pdReviews(p)+
       '<div class="inbox">'+
         '<span class="field-label" style="margin:0">'+T("box.title")+'</span>'+
         '<ul>'+
@@ -1800,6 +1811,15 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
       Bag.add(p.id,currentColor,q);
       fb("AddToCart", { content_ids:[p.id], content_name:p.name, content_type:"product", value:Number(p.price)*q, currency:"QAR" });
       openBag();
+    });
+
+    body.querySelectorAll(".pd-rev .rev-text").forEach(function(t){
+      t.addEventListener("click", function(){ t.classList.toggle("full"); });
+    });
+    var all=document.getElementById("pdRevAll");
+    if(all) all.addEventListener("click", function(){
+      closePanels();
+      var sec=document.getElementById("reviews"); if(sec) sec.scrollIntoView({behavior:"smooth"});
     });
 
     refresh();
@@ -2022,8 +2042,28 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
   var REV_STARS = 0;
   var REV_AVG = 0, REV_N = 0;
   var REV_BY = {};   // per machine: {avg, n}
+  var REV_ROWS = []; // approved reviews, newest first
   function revFor(id){ return REV_BY[id] || {avg:0,n:0}; }
   function revCount(n){ return (n===1 ? T("rev.one") : T("rev.count")).replace("{n}", n); }
+
+  // this machine's own reviews, shown in its panel only when it has some
+  function pdReviews(p){
+    var mine = REV_ROWS.filter(function(r){ return r.product_id === p.id; });
+    if(!mine.length) return "";
+    return '<div class="pd-revs">'+
+      '<span class="field-label" style="margin:0">'+T("pd.reviews")+'</span>'+
+      mine.slice(0,3).map(function(r){
+        var d = new Date(r.created_at);
+        return '<div class="pd-rev">'+
+          '<div class="rev-top"><span class="rev-name">'+esc(r.name)+'</span>'+
+          '<span class="rev-when">'+d.toLocaleDateString(LANG==="ar"?"ar":undefined,{month:"short",year:"numeric"})+'</span></div>'+
+          '<div class="rev-stars">'+starRow(r.rating)+'</div>'+
+          '<p class="rev-text" dir="auto">'+esc(r.comment)+'</p>'+
+        '</div>';
+      }).join("")+
+      (mine.length > 3 ? '<button type="button" class="pd-revs-all" id="pdRevAll">'+T("pd.reviews.all").replace("{n}", mine.length)+'</button>' : '')+
+    '</div>';
+  }
 
   function starRow(n){
     var out="";
@@ -2047,6 +2087,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
         }
         var avg = rows.reduce(function(n,r){ return n + r.rating; },0) / rows.length;
         REV_AVG = avg; REV_N = rows.length;
+        REV_ROWS = rows;
         REV_BY = {};
         rows.forEach(function(r){
           if(!r.product_id) return;
@@ -2069,7 +2110,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
               '</div>'+
               '<div class="rev-stars">'+starRow(r.rating)+
                 (r.product_id && find(r.product_id) ? '<span class="rev-model">'+esc(find(r.product_id).name)+'</span>' : '')+'</div>'+
-              '<p class="rev-text">'+esc(r.comment)+'</p>'+
+              '<p class="rev-text" dir="auto">'+esc(r.comment)+'</p>'+
             '</article>';
           }).join("") +
           '</div>' +
