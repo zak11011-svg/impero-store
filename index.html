@@ -435,7 +435,8 @@ p{margin:0}
   border:1px solid var(--line);color:var(--ivory);font-family:var(--ui);font-size:1rem;border-radius:0;
 }
 .field textarea{min-height:88px;resize:vertical}
-.field input:focus,.field textarea:focus{border-color:var(--gold);outline:none}
+.rev-model{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-inline-start:10px;vertical-align:middle}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);outline:none}
 .field.bad input,.field.bad textarea{border-color:var(--red)}
 .err{display:none;color:var(--red);font-size:.72rem;margin-top:6px}
 .field.bad .err{display:block}
@@ -928,6 +929,15 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
           <input type="text" id="revName" maxlength="40" required>
         </div>
         <div class="field">
+          <label class="field-label" for="revProduct" data-i18n="rev.product">Which machine do you have?</label>
+          <select id="revProduct" required>
+            <option value="" data-i18n="rev.pick">Choose your machine</option>
+            <option value="core">Impero Core</option>
+            <option value="pro">Impero Pro</option>
+            <option value="elite">Impero Elite</option>
+          </select>
+        </div>
+        <div class="field">
           <span class="field-label" data-i18n="rev.rating">Rating</span>
           <div class="stars" id="revStars">
             <button type="button" data-star="1" aria-label="1">&#9733;</button>
@@ -1360,6 +1370,11 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     "rev.none":"لا توجد آراء بعد. كن أول من يكتب.",
     "rev.of":"من 5",
     "rev.count":"{n} رأي",
+    "rev.one":"رأي واحد",
+    "rev.product":"أي آلة لديك؟",
+    "rev.pick":"اختر آلتك",
+    "rev.err.product":"الرجاء اختيار الآلة.",
+    "box.5":"فلتر التقطير",
     "rev.err.name":"الرجاء إدخال اسمك.",
     "rev.err.rating":"الرجاء اختيار تقييم.",
     "rev.err.text":"الرجاء كتابة رأيك.",
@@ -1393,6 +1408,11 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     "rev.none":"No reviews yet. Be the first to write one.",
     "rev.of":"out of 5",
     "rev.count":"{n} reviews",
+    "rev.one":"1 review",
+    "rev.product":"Which machine do you have?",
+    "rev.pick":"Choose your machine",
+    "rev.err.product":"Please choose your machine.",
+    "box.5":"Pour over filter",
     "rev.err.name":"Please enter your name.",
     "rev.err.rating":"Please choose a rating.",
     "rev.err.text":"Please write your review.",
@@ -1608,8 +1628,8 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
         '<div class="card-spec">'+esc(unit(p.pressure))+' &middot; '+esc(unit(p.coffee_type))+'</div>'+
         '<div class="swatch-row">'+dots+'</div>'+
         '<div class="card-price">'+money(p.price)+'</div>'+
-        (REV_N ? '<div class="card-stars">'+starRow(Math.round(REV_AVG))+
-                 '<span>'+REV_AVG.toFixed(1)+' &middot; '+T("rev.count").replace("{n}", REV_N)+'</span></div>' : '')+
+        (revFor(p.id).n ? '<div class="card-stars">'+starRow(Math.round(revFor(p.id).avg))+
+                 '<span>'+revFor(p.id).avg.toFixed(1)+' &middot; '+revCount(revFor(p.id).n)+'</span></div>' : '')+
         '<div class="stock-tag '+st.cls+'">'+esc(st.label)+'</div>'+
         '<span class="btn btn-block'+((anyInStock(p)||anyPreorder(p))?'':' is-out')+'">'+
           (anyInStock(p)?T("card.view"):(anyPreorder(p)?T("card.pre"):T("sold.out")))+'</span>'+
@@ -1684,8 +1704,8 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
       '<div class="pd-name">'+esc(p.name).toUpperCase()+'</div>'+
       '<div class="pd-spec">'+esc(unit(p.pressure))+' &middot; '+esc(unit(p.coffee_type))+' &middot; '+T("pd.selfheat")+'</div>'+
       '<div class="pd-price">'+money(p.price)+'</div>'+
-      (REV_N ? '<div class="card-stars" style="justify-content:flex-start;margin:-6px 0 14px">'+starRow(Math.round(REV_AVG))+
-               '<span>'+REV_AVG.toFixed(1)+' &middot; '+T("rev.count").replace("{n}", REV_N)+'</span></div>' : '')+
+      (revFor(p.id).n ? '<div class="card-stars" style="justify-content:flex-start;margin:-6px 0 14px">'+starRow(Math.round(revFor(p.id).avg))+
+               '<span>'+revFor(p.id).avg.toFixed(1)+' &middot; '+revCount(revFor(p.id).n)+'</span></div>' : '')+
       '<div class="stock-tag" id="pdStock" style="text-align:left"></div>'+
       '<div class="pd-trust">'+
         '<span>'+T("trust.cod")+'</span>'+
@@ -1725,6 +1745,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
           '<li>'+T("box.2")+'</li>'+
           '<li>'+T("box.3")+'</li>'+
           '<li>'+T("box.4")+'</li>'+
+          (/4-in-/i.test(String(p.coffee_type)) ? '<li>'+T("box.5")+'</li>' : '')+
         '</ul>'+
       '</div>'+
       '<p class="note" style="margin-top:16px;font-size:.72rem">'+T("cmp.note")+'</p>';
@@ -1994,6 +2015,9 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
 
   var REV_STARS = 0;
   var REV_AVG = 0, REV_N = 0;
+  var REV_BY = {};   // per machine: {avg, n}
+  function revFor(id){ return REV_BY[id] || {avg:0,n:0}; }
+  function revCount(n){ return (n===1 ? T("rev.one") : T("rev.count")).replace("{n}", n); }
 
   function starRow(n){
     var out="";
@@ -2017,9 +2041,15 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
         }
         var avg = rows.reduce(function(n,r){ return n + r.rating; },0) / rows.length;
         REV_AVG = avg; REV_N = rows.length;
+        REV_BY = {};
+        rows.forEach(function(r){
+          if(!r.product_id) return;
+          var b = REV_BY[r.product_id] || (REV_BY[r.product_id] = {sum:0,n:0,avg:0});
+          b.sum += r.rating; b.n += 1; b.avg = b.sum / b.n;
+        });
         renderGrid();
         document.getElementById("revScore").innerHTML =
-          '<b>'+avg.toFixed(1)+'</b>'+T("rev.of")+' &middot; '+T("rev.count").replace("{n}", rows.length);
+          '<b>'+avg.toFixed(1)+'</b>'+T("rev.of")+' &middot; '+revCount(rows.length);
 
         list.innerHTML =
           '<div class="rev-track" id="revTrack">' +
@@ -2031,7 +2061,8 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
                 '<span class="rev-name">'+esc(r.name)+'</span>'+
                 '<span class="rev-when">'+d.toLocaleDateString(LANG==="ar"?"ar":undefined,{month:"short",year:"numeric"})+'</span>'+
               '</div>'+
-              '<div class="rev-stars">'+starRow(r.rating)+'</div>'+
+              '<div class="rev-stars">'+starRow(r.rating)+
+                (r.product_id && find(r.product_id) ? '<span class="rev-model">'+esc(find(r.product_id).name)+'</span>' : '')+'</div>'+
               '<p class="rev-text">'+esc(r.comment)+'</p>'+
             '</article>';
           }).join("") +
@@ -2133,16 +2164,18 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
       var alertBox = document.getElementById("revAlert");
       var name = document.getElementById("revName").value.trim();
       var text = document.getElementById("revText").value.trim();
+      var prod = document.getElementById("revProduct").value;
       alertBox.classList.remove("on");
 
       if(name.length < 2){ alertBox.textContent=T("rev.err.name"); alertBox.classList.add("on"); return; }
+      if(!prod){ alertBox.textContent=T("rev.err.product"); alertBox.classList.add("on"); return; }
       if(!REV_STARS){ alertBox.textContent=T("rev.err.rating"); alertBox.classList.add("on"); return; }
       if(text.length < 4){ alertBox.textContent=T("rev.err.text"); alertBox.classList.add("on"); return; }
       if(!db){ alertBox.textContent=T("rev.err.send"); alertBox.classList.add("on"); return; }
 
       var btn = document.getElementById("revSubmit");
       btn.disabled = true;
-      db.from("reviews").insert({ name:name, rating:REV_STARS, comment:text, approved:false })
+      db.from("reviews").insert({ name:name, product_id:prod, rating:REV_STARS, comment:text, approved:false })
         .then(function(res){
           btn.disabled = false;
           if(res.error){ alertBox.textContent=T("rev.err.send"); alertBox.classList.add("on"); return; }
