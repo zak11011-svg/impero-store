@@ -1460,7 +1460,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     return LANG==="ar" ? (amount + " ر.ق") : (CUR + " " + amount);
   }
 
-  function applyLang(lang){
+  function applyLang(lang, textOnly){
     LANG = (lang==="ar") ? "ar" : "en";
     var ar = LANG==="ar";
     document.documentElement.lang = ar ? "ar" : "en";
@@ -1488,6 +1488,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     var btn=document.getElementById("langBtn");
     if(btn) btn.textContent = ar ? "English" : "العربية";
 
+    if(textOnly) return;
     renderGrid(); renderCompare(); paintBag(); loadReviews();
     if(document.getElementById("coSummary") && Bag.lines().length) { /* summary redraws on open */ }
   }
@@ -1671,7 +1672,25 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
         if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); openProduct(b.dataset.open, b.dataset.osel || b.dataset.sel); }
       });
     });
-    observe(g.querySelectorAll(".rv"));
+    if(g.dataset.drawn) g.querySelectorAll(".rv").forEach(function(e){ e.classList.add("in"); });
+    else observe(g.querySelectorAll(".rv"));
+    g.dataset.drawn = "1";
+  }
+
+  // put the star line on each card without rebuilding it,
+  // so the videos and fade-in do not restart when reviews arrive
+  function refreshStars(){
+    document.querySelectorAll("#grid .card").forEach(function(card){
+      var r = revFor(card.dataset.open);
+      var old = card.querySelector(".card-stars");
+      if(old) old.remove();
+      if(!r.n) return;
+      var d = document.createElement("div");
+      d.className = "card-stars";
+      d.innerHTML = starRow(Math.round(r.avg))+'<span>'+r.avg.toFixed(1)+' &middot; '+revCount(r.n)+'</span>';
+      var price = card.querySelector(".card-price");
+      if(price) price.after(d); else card.appendChild(d);
+    });
   }
 
   function renderCompare(){
@@ -2094,7 +2113,7 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
           var b = REV_BY[r.product_id] || (REV_BY[r.product_id] = {sum:0,n:0,avg:0});
           b.sum += r.rating; b.n += 1; b.avg = b.sum / b.n;
         });
-        renderGrid();
+        refreshStars();
         document.getElementById("revScore").innerHTML =
           '<b>'+avg.toFixed(1)+'</b>'+T("rev.of")+' &middot; '+revCount(rows.length);
 
@@ -2345,10 +2364,11 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
     var lb=document.getElementById("langBtn");
     if(lb) lb.addEventListener("click", function(){ applyLang(LANG==="ar"?"en":"ar"); });
 
+    // set the language before anything is drawn, then draw everything once
+    applyLang(start, true);
     loadProducts().then(function(){
       renderGrid(); renderCompare(); paint();
       loadReviews();
-      applyLang(start);
     });
   }
 
