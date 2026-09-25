@@ -846,17 +846,22 @@ body.ar .brand span{letter-spacing:.18em}
   /* ---------------- overview ---------------- */
 
   function renderStats(){
-    var totalStock = products.reduce(function(n,p){ return n+p.stock; },0);
+    // the travel pouch is an accessory: keep it out of the machine counts
+    var mach = products.filter(function(p){ return p.id !== "pouch"; });
+    var pouch = products.filter(function(p){ return p.id === "pouch"; })[0];
+    var pouchStock = pouch ? varsOf("pouch").reduce(function(n,v){ return n+v.stock; },0) : 0;
+    var totalStock = mach.reduce(function(n,p){ return n+p.stock; },0);
     var low  = variants.filter(function(v){
-      var p = products.filter(function(x){return x.id===v.product_id;})[0];
+      var p = mach.filter(function(x){return x.id===v.product_id;})[0];
       return p && v.active && v.stock>0 && v.stock<=p.low_stock_at;
     }).length;
-    var out  = variants.filter(function(v){ return v.stock<=0; }).length;
+    var out  = variants.filter(function(v){ return v.product_id!=="pouch" && v.stock<=0; }).length;
     var open = orders.filter(function(o){ return o.status!=="COMPLETED" && o.status!=="CANCELLED"; }).length;
     var pre  = orders.filter(function(o){ return o.status==="PREORDER"; }).length;
     el("stats").innerHTML =
-      '<div class="stat"><b>'+products.length+'</b><span>Products</span></div>'+
-      '<div class="stat"><b>'+totalStock+'</b><span>Total stock</span></div>'+
+      '<div class="stat"><b>'+mach.length+'</b><span>Machines</span></div>'+
+      '<div class="stat"><b>'+totalStock+'</b><span>Machines in stock</span></div>'+
+      (pouch ? '<div class="stat '+(pouchStock<=0?"bad":(pouchStock<=3?"warn":""))+'"><b>'+pouchStock+'</b><span>Pouches in stock</span></div>' : '')+
       '<div class="stat '+(low?"warn":"")+'"><b>'+low+'</b><span>Low colours</span></div>'+
       '<div class="stat '+(out?"bad":"")+'"><b>'+out+'</b><span>Sold out colours</span></div>'+
       '<div class="stat"><b>'+open+'</b><span>Open orders</span></div>'+
@@ -908,7 +913,7 @@ body.ar .brand span{letter-spacing:.18em}
           '<span class="inv-label">Price and availability</span>'+
           '<input type="number" data-f="price" min="0" step="1" value="'+Number(p.price).toFixed(0)+'" aria-label="Price">'+
           '<button class="btn btn-sm" data-act="price">Save price</button>'+
-          '<button class="btn btn-sm btn-ghost" data-act="toggle">'+(p.active?"Disable machine":"Enable machine")+'</button>'+
+          '<button class="btn btn-sm btn-ghost" data-act="toggle">'+(p.id==="pouch" ? (p.active?"Hide pouch":"Show pouch") : (p.active?"Disable machine":"Enable machine"))+'</button>'+
         '</div>'+
       '</div>';
     }).join("");
