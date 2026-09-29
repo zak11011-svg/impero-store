@@ -1212,7 +1212,6 @@ body.ar .gt-cta{letter-spacing:0}
   </div>
 </aside>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" async id="sbjs"></script>
 <script>
 /* ==========================================================
    COFFEE IMPERO  |  shop
@@ -1585,19 +1584,40 @@ body.ar .gt-cta{letter-spacing:0}
     setTimeout(done, 8000);
   });
 
+  // Talk to the database directly with fetch. This works on every browser,
+  // including older iPads that cannot run the Supabase library.
+  function rest(path, opts){
+    opts = opts || {};
+    var h = { apikey: CFG.SUPABASE_KEY, Authorization: "Bearer " + CFG.SUPABASE_KEY,
+              "Content-Type": "application/json", Accept: "application/json" };
+    return fetch(CFG.SUPABASE_URL + "/rest/v1/" + path, {
+      method: opts.method || "GET", headers: h, cache: "no-store",
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function(r){
+      return r.text().then(function(t){
+        var d = null; try { d = t ? JSON.parse(t) : null; } catch(e){}
+        if (!r.ok) { var err = new Error((d && (d.message || d.error)) || ("HTTP " + r.status)); throw err; }
+        return d;
+      });
+    });
+  }
+
   function loadProducts(){
-    return sbReady.then(loadProductsNow);
+    return loadProductsNow().then(function(){
+      if (LIVE) return;
+      // one retry for a flaky connection
+      return new Promise(function(ok){ setTimeout(ok, 1500); }).then(loadProductsNow);
+    });
   }
 
   function loadProductsNow(){
-    db = connect();
-    if (!db) { PRODUCTS = FALLBACK.slice(); LIVE = false; return Promise.resolve(); }
+    if (!CFG.SUPABASE_KEY || !window.fetch) { PRODUCTS = FALLBACK.slice(); LIVE = false; return Promise.resolve(); }
     return Promise.all([
-      db.from("products").select("*").order("sort_order"),
-      db.from("variants").select("*").order("sort_order")
+      rest("products?select=*&order=sort_order"),
+      rest("variants?select=*&order=sort_order")
     ]).then(function(r){
-      var prods = r[0].data, vars = r[1].data;
-      if (r[0].error || !prods || !prods.length) throw r[0].error || new Error("empty");
+      var prods = r[0], vars = r[1];
+      if (!prods || !prods.length) throw new Error("empty");
       if (vars && vars.length) {
         // stock lives on each colour
         prods.forEach(function(p){
@@ -2138,20 +2158,16 @@ body.ar .gt-cta{letter-spacing:0}
       btn.disabled=false; btn.textContent=btnLabel;
     }
 
-    sbReady.then(function(){
-    if(!db) db = connect();
-    if(!db){ done(null, true); return; }
+    if(!CFG.SUPABASE_KEY || !window.fetch){ done(null, true); return; }
 
-    db.rpc(isPre ? "place_preorder" : "place_order", payload).then(function(res){
-      if(res.error) throw res.error;
-      var row = Array.isArray(res.data)?res.data[0]:res.data;
+    rest("rpc/" + (isPre ? "place_preorder" : "place_order"), { method:"POST", body: payload }).then(function(data){
+      var row = Array.isArray(data)?data[0]:data;
       done(row && row.order_no);
     }).catch(function(err){
       alertBox.textContent = (err && err.message) ? err.message : T("err.generic");
       alertBox.classList.add("on");
       btn.disabled=false; btn.textContent=btnLabel;
       loadProducts().then(function(){ renderGrid(); renderCompare(); paintBag(); });
-    });
     });
   }
 
@@ -2212,12 +2228,10 @@ body.ar .gt-cta{letter-spacing:0}
   function loadReviews(){
     var list = document.getElementById("revList");
     if(!list) return;
-    if(!db){ list.innerHTML = '<div class="rev-empty">'+T("rev.none")+'</div>'; return; }
-
-    db.from("reviews").select("*").eq("approved", true)
-      .order("created_at",{ascending:false}).limit(24)
-      .then(function(res){
-        var rows = (res && res.data) || [];
+    rest("reviews?select=*&approved=eq.true&order=created_at.desc&limit=24")
+      .catch(function(){ return []; })
+      .then(function(data){
+        var rows = data || [];
         if(!rows.length){
           list.innerHTML = '<div class="rev-empty">'+T("rev.none")+'</div>';
           document.getElementById("revScore").innerHTML = "";
@@ -2356,14 +2370,14 @@ body.ar .gt-cta{letter-spacing:0}
       if(!prod){ alertBox.textContent=T("rev.err.product"); alertBox.classList.add("on"); return; }
       if(!REV_STARS){ alertBox.textContent=T("rev.err.rating"); alertBox.classList.add("on"); return; }
       if(text.length < 4){ alertBox.textContent=T("rev.err.text"); alertBox.classList.add("on"); return; }
-      if(!db){ alertBox.textContent=T("rev.err.send"); alertBox.classList.add("on"); return; }
 
       var btn = document.getElementById("revSubmit");
       btn.disabled = true;
-      db.from("reviews").insert({ name:name, product_id:prod, rating:REV_STARS, comment:text, approved:false })
-        .then(function(res){
+      rest("reviews", { method:"POST", body:{ name:name, product_id:prod, rating:REV_STARS, comment:text, approved:false } })
+        .then(function(){ return null; }, function(e){ return e || true; })
+        .then(function(failed){
           btn.disabled = false;
-          if(res.error){ alertBox.textContent=T("rev.err.send"); alertBox.classList.add("on"); return; }
+          if(failed){ alertBox.textContent=T("rev.err.send"); alertBox.classList.add("on"); return; }
           form.hidden = true;
           toggle.hidden = true;
           document.getElementById("revThanks").hidden = false;
