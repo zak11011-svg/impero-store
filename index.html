@@ -812,6 +812,11 @@ body.ar .gt-cta{letter-spacing:0}
 .header .brand img{animation:ciLogoIn 1.2s cubic-bezier(.2,.75,.2,1) both;transition:filter .5s ease}
 @keyframes ciLogoIn{from{opacity:0;transform:translateY(-4px) scale(.82) rotate(-10deg)}to{opacity:1;transform:none}}
 .header .brand > span{animation:ciWordIn 1.3s cubic-bezier(.2,.75,.2,1) .35s both}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+.header .brand > span{background:linear-gradient(110deg,#F4F1EA 0%,#F4F1EA 40%,#E9D3A0 46%,#C2A26A 50%,#E9D3A0 54%,#F4F1EA 60%,#F4F1EA 100%);
+  background-size:300% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  animation:ciWordIn 1.3s cubic-bezier(.2,.75,.2,1) .35s both,ciShineText 7s ease-in-out 1.95s infinite}}
+@keyframes ciShineText{0%{background-position:120% 0}34%,100%{background-position:-20% 0}}
 @keyframes ciWordIn{from{opacity:0;transform:translateX(-8px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
 .header .brand:hover img{filter:drop-shadow(0 0 7px rgba(194,162,106,.6))}
 @media (prefers-reduced-motion:reduce){.header .brand img,.header .brand > span,.header .brand .brand-mark::after{animation:none}}
