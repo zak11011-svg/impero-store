@@ -755,6 +755,23 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
 .nav a{white-space:nowrap}
 @media(min-width:900px) and (max-width:1199px){.nav{gap:24px}.nav a{letter-spacing:.18em}}
 </style>
+<style id="ci-logo-anim">
+/* logo animation: load-in, gold light sweep, hover glow */
+.header .brand .brand-mark{position:relative;display:inline-flex;flex:none;line-height:0}
+.header .brand .brand-mark img{aspect-ratio:206/320;width:auto}
+.header .brand .brand-mark::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,246,220,.95) 48%,rgba(255,236,190,.55) 54%,transparent 70%);
+  background-size:300% 100%;background-position:120% 0;
+  -webkit-mask:var(--ci-logo) center/contain no-repeat;mask:var(--ci-logo) center/contain no-repeat;
+  mix-blend-mode:screen;animation:ciShine 7s ease-in-out 1.6s infinite}
+@keyframes ciShine{0%{background-position:120% 0}22%,100%{background-position:-20% 0}}
+.header .brand img{animation:ciLogoIn 1.2s cubic-bezier(.2,.75,.2,1) both;transition:filter .5s ease}
+@keyframes ciLogoIn{from{opacity:0;transform:translateY(-4px) scale(.82) rotate(-10deg)}to{opacity:1;transform:none}}
+.header .brand > span{animation:ciWordIn 1.3s cubic-bezier(.2,.75,.2,1) .35s both}
+@keyframes ciWordIn{from{opacity:0;transform:translateX(-8px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+.header .brand:hover img{filter:drop-shadow(0 0 7px rgba(194,162,106,.6))}
+@media (prefers-reduced-motion:reduce){.header .brand img,.header .brand > span,.header .brand .brand-mark::after{animation:none}}
+</style>
 </head>
 <body>
 <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1650321473340184&ev=PageView&noscript=1"></noscript>
@@ -951,6 +968,11 @@ body.in-checkout .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
   document.getElementById("langBtn").addEventListener("click", function(){
     applyLang(document.documentElement.dir==="rtl" ? "en" : "ar");
   });
+</script>
+<script id="ci-logo-anim-js">
+(function(){try{var img=document.querySelector('.header .brand img');if(!img||img.parentNode.classList.contains('brand-mark'))return;
+var w=document.createElement('span');w.className='brand-mark';img.parentNode.insertBefore(w,img);w.appendChild(img);
+w.style.setProperty('--ci-logo','url("'+(img.currentSrc||img.src)+'")');}catch(e){}})();
 </script>
 </body>
 </html>
