@@ -2525,11 +2525,15 @@ body.ar .gt-cta{letter-spacing:0}
     // jump when the live stock arrives a moment later
     PRODUCTS = FALLBACK.slice(); renderGrid(); renderCompare();
     if(pdHash()) openProduct(pdHash(), null, true);
-    window.addEventListener("popstate", function(){
+    function onHash(){
       var h = pdHash();
-      if(h) openProduct(h, null, true);
+      if(h){ if(!(current && current.id === h && productPanel.classList.contains("open"))) openProduct(h, null, true); }
       else { PD_PUSHED = false; if(productPanel.classList.contains("open")) hidePanels(); }
-    });
+    }
+    window.addEventListener("popstate", onHash);
+    // Safari does not always fire popstate when only the #machine part changes
+    window.addEventListener("hashchange", onHash);
+    window.addEventListener("pageshow", function(e){ if(e.persisted) onHash(); });
     loadProducts().then(function(){
       renderGrid(); renderCompare(); paint();
       // refresh an open machine with live stock, keeping the chosen colour
