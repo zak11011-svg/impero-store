@@ -871,6 +871,8 @@ body.no-scroll .buybar{transform:translateY(110%)}
 .buybar .btn{flex:none}
 .wa{transition:bottom .35s ease,opacity .2s ease}
 @media(max-width:759px){body.has-buybar .wa{bottom:calc(78px + env(safe-area-inset-bottom))}}
+/* keep the pouring cup clear of the lifted whatsapp button */
+@media(max-width:759px){body.has-buybar .pour{bottom:calc(146px + env(safe-area-inset-bottom))}}
 </style>
 </head>
 <body>
