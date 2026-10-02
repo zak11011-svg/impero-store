@@ -828,11 +828,12 @@ body.ar .gt-cta{letter-spacing:0}
 .pd-trust span::before{content:"";position:absolute;inset-inline-start:2px;top:.42em;width:9px;height:5px;border-left:1.5px solid var(--gold);border-bottom:1.5px solid var(--gold);transform:rotate(-45deg)}
 .pd-trust span.opt-line{color:var(--muted)}
 /* whatsapp order button in the machine page */
-.pd-wa{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:44px;margin-top:10px;
-  border:1px solid var(--line-gold);color:var(--gold);font-family:var(--ui);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase}
+.pd-wa{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:40px;margin-top:6px;
+  color:var(--gold);font-family:var(--ui);font-size:.82rem}
+.pd-wa span{text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line-gold)}
 .pd-wa svg{width:17px;height:17px;fill:var(--gold);flex:none}
-.pd-wa:hover{border-color:var(--gold)}
-body.ar .pd-wa{letter-spacing:0;font-size:.8rem}
+.pd-wa:hover span{text-decoration-color:var(--gold)}
+
 /* how it works */
 .how{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
 @media(min-width:760px){.how{grid-template-columns:repeat(3,1fr)}}
@@ -1477,7 +1478,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "trust.cod":"ادفع نقداً عند الاستلام. لا تدفع شيئاً الآن.",
     "trust.warranty":"ضمان ستة أشهر ضد عيوب التصنيع.",
     "trust.demo":"اختياري: إن أحببت، اطلب منا أن نريك آلة العرض وهي تحضّر القهوة عند التوصيل، قبل أن تدفع.",
-    "pd.wa":"اطلب عبر واتساب","pd.waask":"اسأل عبر واتساب",
+    "pd.wa":"تفضّل واتساب؟ اطلب من هناك","pd.waask":"اسأل عبر واتساب",
     "sp.cups":"لكل شحنة","sp.cupsv":"خمسة إلى ستة إسبريسو، ٥٠ مل لكل كوب",
     "spec.v6":"٥ إلى ٦","spec.l6":"إسبريسو لكل شحنة، ٥٠ مل لكل كوب",
     "how.eyebrow":"طريقة العمل","how.title":"ثلاث خطوات.<br>إسبريسو واحد.",
@@ -1630,7 +1631,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "trust.cod":"Pay cash when it arrives. Nothing online today.",
     "trust.warranty":"6 month warranty against manufacturing faults.",
     "trust.demo":"Optional: if you like, ask us to show our demo machine brewing at your door, before you pay.",
-    "pd.wa":"Order on WhatsApp","pd.waask":"Ask on WhatsApp",
+    "pd.wa":"Prefer WhatsApp? Order there instead","pd.waask":"Ask on WhatsApp",
     "sp.cups":"Per charge","sp.cupsv":"5 to 6 espressos, 50 ml each",
     "pick.if":"Choose",
     "pick.core.t":"I want good espresso at the best price.","pick.core.d":"20 bar, capsules and ground coffee, one button. The essentials and nothing extra.",
@@ -2096,7 +2097,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     var foot=document.getElementById("pdFoot");
     foot.innerHTML='<button class="btn btn-solid btn-block" id="pdAdd">'+T("pd.add")+'</button>'+
       '<a class="pd-wa" id="pdWa" target="_blank" rel="noopener" href="https://wa.me/'+CFG.WHATSAPP+'">'+WA_ICON+'<span></span></a>'+
-      '<p class="note" style="margin-top:12px" id="pdNote">'+T("pd.note")+'</p>';
+      '<p class="note" style="margin-top:6px;text-align:center" id="pdNote">'+T("pd.note")+'</p>';
 
     var qi=document.getElementById("pdQty");
     var add=document.getElementById("pdAdd");
