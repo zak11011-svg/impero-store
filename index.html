@@ -1411,7 +1411,7 @@ body.ar .gt-cta{letter-spacing:0}
     "pre.btn":"اطلب مسبقاً",
     "card.pre":"اطلب مسبقاً",
     "pre.tag":"نفد المخزون، الطلب المسبق متاح",
-    "pre.wait":"طلب مسبق. متوقع خلال ثلاثة إلى أربعة أسابيع تقريباً. لا تدفع شيئاً الآن، الدفع عند الاستلام.",
+    "pre.wait":"طلب مسبق. متوقع خلال أربعة إلى ستة أيام تقريباً. لا تدفع شيئاً الآن، الدفع عند الاستلام.",
     "pre.submit":"تأكيد الطلب المسبق",
     "pre.done":"تم استلام طلبك المسبق",
     "pre.note":"سنتصل بك فور وصول الجهاز، قبل الشحن.",
@@ -1516,7 +1516,7 @@ body.ar .gt-cta{letter-spacing:0}
     "pre.btn":"Preorder",
     "card.pre":"Preorder",
     "pre.tag":"Sold out, preorder open",
-    "pre.wait":"Preorder. Expected in about 3 to 4 weeks. Nothing to pay now, cash on delivery when it arrives.",
+    "pre.wait":"Preorder. Expected in about 4 to 6 days. Nothing to pay now, cash on delivery when it arrives.",
     "pre.submit":"Place preorder",
     "pre.done":"Preorder received",
     "pre.note":"We will call you as soon as your machine arrives, before we send it out.",
@@ -2123,7 +2123,7 @@ body.ar .gt-cta{letter-spacing:0}
       var t=head+(orderNo?", #"+orderNo:"")+"\n\n";
       lines.forEach(function(l){ t+=l.name+" ("+l.color+") x"+l.qty+" = "+money(l.sub)+"\n"; });
       t+="\nTotal on delivery: "+money(total)+"\nDelivery: free, across Qatar\n";
-      if(isPre) t+="Expected in about 3 to 4 weeks\n";
+      if(isPre) t+="Expected in about 4 to 6 days\n";
       t+="\n";
       t+="Name: "+payload.p_name+"\nPhone: "+payload.p_phone+"\nArea: "+payload.p_area+"\nAddress: "+payload.p_address+"\n";
       if(payload.p_notes) t+="Notes: "+payload.p_notes+"\n";
