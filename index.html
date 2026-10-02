@@ -1481,6 +1481,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "trust.warranty":"ضمان ستة أشهر ضد عيوب التصنيع.",
     "trust.demo":"اختياري: إن أحببت، اطلب منا أن نريك آلة العرض وهي تحضّر القهوة عند التوصيل، قبل أن تدفع.",
     "pd.wa":"تفضّل واتساب؟ اطلب من هناك","pd.waask":"اسأل عبر واتساب",
+    "sp.togo":"كوب للتنقّل","sp.togov":"الغطاء العلوي يركب على الكوب ويغلقه، فتحمل قهوتك معك",
     "sp.cups":"لكل شحنة","sp.cupsv":"خمسة إلى ستة إسبريسو، ٥٠ مل لكل كوب",
     "spec.v6":"٥ إلى ٦","spec.l6":"إسبريسو لكل شحنة، ٥٠ مل لكل كوب",
     "how.eyebrow":"طريقة العمل","how.title":"ثلاث خطوات.<br>إسبريسو واحد.",
@@ -1490,7 +1491,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "pick.eyebrow":"أيّها يناسبني؟","pick.title":"اختر آلتك.","pick.if":"اختر",
     "pick.core.t":"أريد إسبريسو جيداً بأفضل سعر.","pick.core.d":"ضغط ٢٠ بار، كبسولات وقهوة مطحونة، زر واحد. الأساسيات دون زيادة.",
     "pick.pro.t":"أريد ضغطاً أعلى وشاشة أرى بها ما يحدث.","pick.pro.d":"ضغط ٢٥ بار لكريما أغنى، وشاشة رقمية تعرض التسخين والبطارية.",
-    "pick.elite.t":"أريد كل شيء، مع القهوة المقطّرة.","pick.elite.d":"ضغط ٢٥ بار، شاشة رقمية، وفلتر للقهوة المقطّرة. أربع طرق تحضير في آلة واحدة.",
+    "pick.elite.t":"أريد كل شيء، مع القهوة المقطّرة.","pick.elite.d":"ضغط ٢٥ بار، شاشة رقمية، وفلتر للقهوة المقطّرة. أربع طرق تحضير، والغطاء يغلق الكوب لتحمل قهوتك معك.",
     "pick.view":"عرض","bar.from":"ابتداءً من","bar.sub":"توصيل مجاني · الدفع عند الاستلام","bar.btn":"اختر آلتك",
     "trust.delivery":"توصيل مجاني في كل قطر، من نفس اليوم إلى ثلاثة أيام.",
     "faq.eyebrow":"أسئلة",
@@ -1634,11 +1635,12 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "trust.warranty":"6 month warranty against manufacturing faults.",
     "trust.demo":"Optional: if you like, ask us to show our demo machine brewing at your door, before you pay.",
     "pd.wa":"Prefer WhatsApp? Order there instead","pd.waask":"Ask on WhatsApp",
+    "sp.togo":"Cup to go","sp.togov":"The top lid fits onto the cup and closes it, so you can carry your coffee with you",
     "sp.cups":"Per charge","sp.cupsv":"5 to 6 espressos, 50 ml each",
     "pick.if":"Choose",
     "pick.core.t":"I want good espresso at the best price.","pick.core.d":"20 bar, capsules and ground coffee, one button. The essentials and nothing extra.",
     "pick.pro.t":"I want more pressure and a screen to see what is happening.","pick.pro.d":"25 bar for a richer crema, and a digital display that shows heating and battery.",
-    "pick.elite.t":"I want everything, pour over included.","pick.elite.d":"25 bar, digital display and a pour over filter. Four ways to brew in one machine.",
+    "pick.elite.t":"I want everything, pour over included.","pick.elite.d":"25 bar, digital display and a pour over filter. Four ways to brew, and the lid closes the cup so you can take your coffee with you.",
     "pick.view":"View","bar.from":"From",
     "trust.delivery":"Free delivery across Qatar, same day to three days.",
     "form.submit":"Place order",
@@ -2080,6 +2082,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
         '<div><dt>'+T("sp.material")+'</dt><dd>'+T("sp.materialv")+'</dd></div>'+
         '<div><dt>'+T("sp.brewing")+'</dt><dd>'+esc(unit(p.coffee_type))+'</dd></div>'+
         '<div><dt>'+T("sp.screen")+'</dt><dd>'+(p.id==="core"?T("cmp.no"):T("sp.screenv"))+'</dd></div>'+
+        (p.id==="elite" ? '<div><dt>'+T("sp.togo")+'</dt><dd>'+T("sp.togov")+'</dd></div>' : '')+
       '</dl>'+
       pdReviews(p)+
       '<div class="inbox">'+
