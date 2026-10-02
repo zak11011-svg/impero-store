@@ -1004,7 +1004,7 @@ body.ar .brand span{letter-spacing:.18em}
         '<dt>Phone</dt><dd><a href="tel:'+esc(o.phone)+'">'+esc(o.phone)+'</a> &middot; '+
           '<a href="https://wa.me/'+esc(String(o.phone).replace(/\D/g,""))+'" target="_blank" rel="noopener">WhatsApp</a></dd>'+
         '<dt>Area</dt><dd>'+esc(o.area)+'</dd>'+
-        '<dt>Address</dt><dd>'+esc(o.address)+'</dd>'+
+        '<dt>Address</dt><dd style="white-space:pre-line">'+esc(o.address).replace(/(https:\/\/maps\.google\.com\/\?q=[-0-9.,]+)/,'<a href="$1" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Open in Google Maps</a>')+'</dd>'+
         (o.notes?'<dt>Notes</dt><dd>'+esc(o.notes)+'</dd>':'')+
         '<dt>Items</dt><dd>'+items+'</dd>'+
         '<dt>Total</dt><dd>'+money(o.total)+'</dd>'+

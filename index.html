@@ -858,6 +858,16 @@ body.ar .pick-if{letter-spacing:0;font-size:.78rem}
 .pick-foot{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:8px;padding-top:14px;border-top:1px solid var(--line)}
 .pick-foot b{font-family:var(--display);font-weight:400;font-size:1.05rem;letter-spacing:.08em;color:var(--ivory)}
 .pick-foot span{font-size:.82rem;color:var(--gold)}
+/* location pin in checkout */
+.loc-btns{display:flex;flex-wrap:wrap;gap:8px}
+.loc-btns .btn{flex:1 1 150px;letter-spacing:.12em;padding:0 10px}
+body.ar .loc-btns .btn{letter-spacing:0;font-size:.78rem}
+.loc-map{height:260px;margin-top:10px;border:1px solid var(--line);background:#14130f;z-index:0;position:relative}
+.loc-status{margin-top:8px;font-size:.78rem;color:var(--ivory);line-height:1.5}
+.loc-status.warn{color:var(--gold)}
+.loc-status button{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;font:inherit;cursor:pointer}
+.loc-pin{width:26px;height:26px;border-radius:50% 50% 50% 0;background:#C2A26A;border:2px solid #080807;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.loc-pin::after{content:"";position:absolute;left:7px;top:7px;width:8px;height:8px;border-radius:50%;background:#080807}
 /* phone order bar */
 .buybar{position:fixed;left:0;right:0;bottom:0;z-index:54;display:none;align-items:center;justify-content:space-between;gap:12px;
   padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(8,8,7,.96);border-top:1px solid var(--line-gold);
@@ -1304,6 +1314,15 @@ body.no-scroll .buybar{transform:translateY(110%)}
         <input type="text" id="area" name="area" autocomplete="address-level2" required>
         <span class="err" data-i18n="err.area">Please enter your area.</span>
       </div>
+      <div class="field" id="locField">
+        <span class="field-label" data-i18n="loc.label">Location pin, optional</span>
+        <div class="loc-btns">
+          <button type="button" class="btn btn-ghost btn-sm" id="locGps" data-i18n="loc.gps">Use my current location</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="locPick" data-i18n="loc.pick">Choose on the map</button>
+        </div>
+        <div class="loc-map" id="locMap" hidden></div>
+        <p class="loc-status" id="locStatus" hidden><span id="locText"></span> <button type="button" id="locClear" data-i18n="loc.clear">Remove</button></p>
+      </div>
       <div class="field">
         <label class="field-label" for="address" data-i18n="form.address">Address</label>
         <textarea id="address" name="address" placeholder="Building, street, zone" data-i18n-ph="ph.address" required></textarea>
@@ -1447,6 +1466,11 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "form.area":"المنطقة",
     "form.address":"العنوان",
     "form.notes":"ملاحظات، اختياري",
+    "loc.label":"تحديد الموقع، اختياري","loc.gps":"استخدم موقعي الحالي","loc.pick":"اختر على الخريطة","loc.clear":"إزالة",
+    "loc.saved":"تم حفظ الموقع. يمكنك تحريك العلامة أو الضغط على الخريطة لتعديله.","loc.savednomap":"تم حفظ موقعك الحالي.",
+    "loc.wait":"جارٍ تحديد موقعك...","loc.denied":"تعذّر الوصول إلى موقعك. اختر الموقع على الخريطة أو اكتب العنوان.",
+    "loc.tap":"اضغط على الخريطة لوضع العلامة على موقع التوصيل.","loc.nomap":"تعذّر تحميل الخريطة. اكتب العنوان من فضلك.",
+    "loc.outside":"هذا الموقع يبدو خارج قطر. نحن نوصّل داخل قطر فقط.",
     "ph.address":"المبنى، الشارع، رقم المنطقة",
     "err.name":"الرجاء إدخال الاسم.",
     "err.phone":"الرجاء إدخال رقم يمكننا التواصل عبره.",
@@ -1632,6 +1656,10 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "pre.title":"Preorder",
     "panel.cod":"Cash on delivery",
     "trust.cod":"Pay cash when it arrives. Nothing online today.",
+    "loc.saved":"Location saved. Drag the pin or tap the map to adjust it.","loc.savednomap":"Your current location is saved.",
+    "loc.wait":"Finding your location...","loc.denied":"We could not read your location. Choose it on the map or type the address.",
+    "loc.tap":"Tap the map to drop the pin on your delivery location.","loc.nomap":"The map could not load. Please type the address.",
+    "loc.outside":"This pin looks outside Qatar. We deliver inside Qatar only.",
     "trust.warranty":"6 month warranty against manufacturing faults.",
     "trust.demo":"Optional: if you like, ask us to show our demo machine brewing at your door, before you pay.",
     "pd.wa":"Prefer WhatsApp? Order there instead","pd.waask":"Ask on WhatsApp",
@@ -2209,6 +2237,87 @@ body.no-scroll .buybar{transform:translateY(110%)}
     fb("ViewContent", { content_ids:[p.id], content_name:p.name, content_type:"product", value:Number(p.price), currency:"QAR" });
   }
 
+  /* ---------------- location pin (optional) ---------------- */
+  // The map library loads only when someone asks for the map, so the page stays light.
+  window.CI_LOC = (function(){
+    var pos=null, map=null, marker=null, loading=null;
+    var LF="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
+    var DOHA=[25.2854,51.5310];
+    function el(id){ return document.getElementById(id); }
+    function inQatar(p){ return p.lat>24.4 && p.lat<26.3 && p.lng>50.6 && p.lng<51.8; }
+    function status(key, warn){
+      var s=el("locStatus"); if(!s) return;
+      s.hidden=!key; s.classList.toggle("warn", !!warn);
+      el("locText").textContent = key ? T(key) : "";
+      el("locClear").hidden = !pos;
+    }
+    function set(lat,lng){
+      pos={lat:+(+lat).toFixed(6), lng:+(+lng).toFixed(6)};
+      if(!inQatar(pos)) status("loc.outside", true);
+      else status(map ? "loc.saved" : "loc.savednomap");
+    }
+    function place(lat,lng,zoom){
+      set(lat,lng);
+      if(!map) return;
+      if(!marker){
+        marker=L.marker([lat,lng],{draggable:true,icon:L.divIcon({className:"",html:'<div class="loc-pin"></div>',iconSize:[26,26],iconAnchor:[13,30]})}).addTo(map);
+        marker.on("dragend",function(){ var p=marker.getLatLng(); set(p.lat,p.lng); });
+      } else marker.setLatLng([lat,lng]);
+      if(zoom) map.setView([lat,lng],zoom);
+    }
+    function loadLib(){
+      if(window.L) return Promise.resolve();
+      if(loading) return loading;
+      loading=new Promise(function(ok,fail){
+        var c=document.createElement("link"); c.rel="stylesheet"; c.href=LF+"leaflet.min.css"; document.head.appendChild(c);
+        var j=document.createElement("script"); j.src=LF+"leaflet.min.js"; j.onload=ok;
+        j.onerror=function(){ loading=null; fail(); }; document.head.appendChild(j);
+      });
+      return loading;
+    }
+    function showMap(){
+      return loadLib().then(function(){
+        var box=el("locMap"); box.hidden=false;
+        if(!map){
+          map=L.map(box,{zoomControl:true,attributionControl:true}).setView(pos?[pos.lat,pos.lng]:DOHA, pos?17:11);
+          L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(map);
+          map.on("click",function(e){ place(e.latlng.lat,e.latlng.lng); });
+        }
+        setTimeout(function(){ map.invalidateSize(); },60);
+        if(pos) place(pos.lat,pos.lng,17);
+      });
+    }
+    function gps(){
+      if(!navigator.geolocation){ status("loc.denied", true); showMap().catch(function(){}); return; }
+      status("loc.wait");
+      navigator.geolocation.getCurrentPosition(function(g){
+        set(g.coords.latitude,g.coords.longitude);
+        showMap().then(function(){ place(pos.lat,pos.lng,17); }).catch(function(){ status("loc.savednomap"); });
+      }, function(){
+        status("loc.denied", true);
+        showMap().catch(function(){});
+      }, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+    }
+    function pick(){
+      showMap().then(function(){ if(!pos) status("loc.tap"); })
+               .catch(function(){ status("loc.nomap", true); });
+    }
+    function clear(){
+      pos=null;
+      if(marker && map){ map.removeLayer(marker); marker=null; }
+      var box=el("locMap"); if(box) box.hidden=true;
+      status(null);
+    }
+    function init(){
+      if(!el("locGps")) return;
+      el("locGps").addEventListener("click", gps);
+      el("locPick").addEventListener("click", pick);
+      el("locClear").addEventListener("click", clear);
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init); else init();
+    return { link:function(){ return pos ? ("https://maps.google.com/?q="+pos.lat+","+pos.lng) : ""; }, clear:clear };
+  })();
+
   function openBag(){ paintBag(); openPanel(bagPanel); }
 
   function paintBag(){
@@ -2316,7 +2425,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
 
     var payload={
       p_name:f.fullName.value.trim(), p_phone:f.phone.value.trim(),
-      p_area:f.area.value.trim(), p_address:f.address.value.trim(),
+      p_area:f.area.value.trim(), p_address:f.address.value.trim() + (window.CI_LOC && CI_LOC.link() ? "\nLocation: " + CI_LOC.link() : ""),
       p_notes:f.notes.value.trim(),
       p_items: isPre
         ? [{id:PRE.id, color:PRE.color, qty:PRE.qty}]
@@ -2379,6 +2488,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
       if(offline && eyebrow) eyebrow.textContent = T("done.offline.t");
       f.style.display="none";
       document.getElementById("coDone").hidden=false;
+      if(window.CI_LOC) CI_LOC.clear();
       if(!isPre && !offline) Bag.clear();
       PRE = null;
       loadProducts().then(function(){ renderGrid(); renderCompare(); });
