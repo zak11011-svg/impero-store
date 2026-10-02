@@ -2141,7 +2141,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
       var q=Math.max(1,parseInt(qi.value,10)||1);
       var sum=Number(p.price)*q, extra="";
       var pc=document.getElementById("pdPouch"), po=pouchOffer();
-      if(st.sellable && pc && pc.checked && po){
+      if((st.sellable || st.preorder) && pc && pc.checked && po){
         var pq=Math.min(q, po.stock);
         sum += Number(po.p.price)*pq;
         extra = LANG==="ar" ? (" مع حقيبة السفر، الكمية "+pq+".") : (" Plus the travel pouch, quantity "+pq+".");
@@ -2171,7 +2171,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
       qi.max = st.max || 20;
       if(parseInt(qi.value,10) > qi.max) qi.value = Math.max(1, qi.max);
       add.disabled = !(st.sellable || st.preorder);
-      var pr=document.getElementById("pdPouchRow"); if(pr) pr.hidden = !st.sellable;
+      var pr=document.getElementById("pdPouchRow"); if(pr) pr.hidden = !(st.sellable || st.preorder);
       paintOrder();
       var pn=document.getElementById("pdNote");
       if(pn) pn.textContent = st.preorder ? T("pre.wait") : T("pd.note");
@@ -2209,7 +2209,9 @@ body.no-scroll .buybar{transform:translateY(110%)}
       var st = stockLine();
       if(!st.sellable && st.preorder){
         q = Math.min(PRE_MAX, q);
-        openCheckout({ id:p.id, color:currentColor, qty:q });
+        var prePc = document.getElementById("pdPouch"), prePo = pouchOffer();
+        openCheckout({ id:p.id, color:currentColor, qty:q,
+          pouch: (prePc && prePc.checked && prePo) ? { color:prePo.color, qty:Math.min(q, prePo.stock) } : null });
         return;
       }
       Bag.add(p.id,currentColor,q);
@@ -2372,8 +2374,13 @@ body.no-scroll .buybar{transform:translateY(110%)}
   function preLines(pre){
     var p=find(pre.id); if(!p) return [];
     var c=(p.colors||[]).filter(function(x){return x.name===pre.color;})[0] || {};
-    return [{ id:p.id, name:p.name, color:pre.color, img:pic(p.id,pre.color,c.img),
+    var out = [{ id:p.id, name:p.name, color:pre.color, img:pic(p.id,pre.color,c.img),
               price:Number(p.price), qty:pre.qty, sub:Number(p.price)*pre.qty }];
+    // the travel pouch can ride along with a preorder
+    var po = pre.pouch ? find(ACCESSORY) : null;
+    if(po) out.push({ id:po.id, name:po.name, color:pre.pouch.color, img:pic(po.id,pre.pouch.color,""),
+                      price:Number(po.price), qty:pre.pouch.qty, sub:Number(po.price)*pre.pouch.qty });
+    return out;
   }
 
   function sumOf(lines){ return lines.reduce(function(n,l){ return n+l.sub; },0); }
@@ -2428,7 +2435,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
       p_area:f.area.value.trim(), p_address:f.address.value.trim() + (window.CI_LOC && CI_LOC.link() ? "\nLocation: " + CI_LOC.link() : ""),
       p_notes:f.notes.value.trim(),
       p_items: isPre
-        ? [{id:PRE.id, color:PRE.color, qty:PRE.qty}]
+        ? [{id:PRE.id, color:PRE.color, qty:PRE.qty}].concat(PRE.pouch ? [{id:ACCESSORY, color:PRE.pouch.color, qty:PRE.pouch.qty}] : [])
         : Bag.read().map(function(l){ return {id:l.id,color:l.color,qty:l.qty}; })
     };
 
