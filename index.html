@@ -2105,7 +2105,14 @@ body.no-scroll .buybar{transform:translateY(110%)}
     function paintOrder(){
       var st=stockLine();
       var q=Math.max(1,parseInt(qi.value,10)||1);
-      var total=money(Number(p.price)*q);
+      var sum=Number(p.price)*q, extra="";
+      var pc=document.getElementById("pdPouch"), po=pouchOffer();
+      if(st.sellable && pc && pc.checked && po){
+        var pq=Math.min(q, po.stock);
+        sum += Number(po.p.price)*pq;
+        extra = LANG==="ar" ? (" مع حقيبة السفر، الكمية "+pq+".") : (" Plus the travel pouch, quantity "+pq+".");
+      }
+      var total=money(sum);
       add.textContent = st.sellable ? (T("pd.add")+" \u00b7 "+total) : (st.preorder ? (T("pre.btn")+" \u00b7 "+total) : T("sold.out"));
       var wa=document.getElementById("pdWa"); if(!wa) return;
       var canOrder = st.sellable || st.preorder;
@@ -2120,7 +2127,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
             : st.preorder ? ("Hello Coffee Impero, I would like to preorder: "+item+", quantity "+q+".")
             : ("Hello Coffee Impero, I am interested in the "+item+". When will it be back in stock?");
       }
-      wa.href = "https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(msg);
+      wa.href = "https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(msg+extra);
     }
 
     function refresh(){
@@ -2158,6 +2165,8 @@ body.no-scroll .buybar{transform:translateY(110%)}
       });
     });
     qi.addEventListener("input", paintOrder);
+    var pouchBox=document.getElementById("pdPouch");
+    if(pouchBox) pouchBox.addEventListener("change", paintOrder);
     document.getElementById("pdWa").addEventListener("click", function(){
       fb("Contact", { content_ids:[p.id], content_name:p.name, content_type:"product", value:Number(p.price), currency:"QAR" });
     });
