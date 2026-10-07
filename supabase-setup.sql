@@ -60,14 +60,14 @@ create index if not exists stock_log_created_idx on stock_log (created_at desc);
 -- ---------- seed the three machines ----------
 
 insert into products (id, name, model, pressure, battery, coffee_type, price, stock, sort_order, colors) values
-  ('core',  'Impero Core',  'Core',  '20 Bar', '9600mAh', '3-in-1', 239, 0, 1,
+  ('core',  'Impero Core',  'Core',  '20 Bar', '9600mAh', '3-in-1', 229, 0, 1,
      '[{"name":"White","hex":"#EDEDEA","img":"assets/img/core-white.png"},
        {"name":"Black","hex":"#1A1A1A","img":"assets/img/core-black.png"},
        {"name":"Green","hex":"#2F4A34","img":"assets/img/core-green.png"}]'::jsonb),
-  ('pro',   'Impero Pro',   'Pro',   '25 Bar', '9600mAh', '3-in-1', 279, 0, 2,
+  ('pro',   'Impero Pro',   'Pro',   '25 Bar', '9600mAh', '3-in-1', 269, 0, 2,
      '[{"name":"White","hex":"#EDEDEA","img":"assets/img/pro-white.png"},
        {"name":"Black","hex":"#1A1A1A","img":"assets/img/pro-black.png"}]'::jsonb),
-  ('elite', 'Impero Elite', 'Elite', '25 Bar', '9600mAh', '4-in-1', 309, 0, 3,
+  ('elite', 'Impero Elite', 'Elite', '25 Bar', '9600mAh', '4-in-1', 299, 0, 3,
      '[{"name":"White","hex":"#EDEDEA","img":"assets/img/elite-white.png"},
        {"name":"Black","hex":"#1A1A1A","img":"assets/img/elite-black.png"}]'::jsonb)
 on conflict (id) do nothing;
