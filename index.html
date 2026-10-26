@@ -667,9 +667,10 @@ body.ar .brand span{letter-spacing:.18em}
 .pouch-opt{display:flex;align-items:center;gap:14px;border:1px solid var(--line);padding:12px 14px;margin:-8px 0 26px;cursor:pointer;transition:border-color .3s}
 .pouch-opt:has(input:checked){border-color:var(--gold)}
 .demo-opt{margin:0 0 18px}
-.hero-demo{margin-top:16px}
-.demo-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--gold);color:var(--gold);font-size:.8rem;letter-spacing:.03em;text-decoration:none;transition:background .3s,color .3s}
-.demo-pill:hover{background:var(--gold);color:var(--ink)}
+.hero-demo{margin-top:22px}
+.demo-pill{display:inline-block;padding:4px 0;border-bottom:1px solid rgba(214,178,110,.45);color:var(--gold);font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;transition:border-color .3s}
+.demo-pill:hover{border-color:var(--gold)}
+[dir="rtl"] .demo-pill{letter-spacing:0;font-size:.8rem;text-transform:none}
 #demo{scroll-margin-top:84px}
 .demo-band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:56px 0;background:radial-gradient(ellipse at top,rgba(214,178,110,.12),transparent 70%)}
 .demo-in{text-align:center;max-width:720px;margin:0 auto}
@@ -949,7 +950,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
         <div class="hero-actions rv in rv-3">
           <a class="btn btn-solid" href="#collection" data-i18n="cta.shop">Shop collection</a>
         </div>
-        <div class="hero-demo rv in rv-3"><a class="demo-pill" href="#demo">&#9749; <span data-i18n="demo.pill">Try it before you pay: demo at your door</span></a></div>
+        <div class="hero-demo rv in rv-3"><a class="demo-pill" href="#demo"><span data-i18n="demo.pill">Try it before you pay</span></a></div>
       </div>
       <div class="hero-fig rv in rv-2">
         <span class="hero-glow" aria-hidden="true"></span>
@@ -1499,7 +1500,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "form.phone":"رقم الهاتف",
     "form.area":"المنطقة",
     "form.address":"العنوان",
-    "form.notes":"ملاحظات، اختياري","demo.t":"تجربة قبل الشراء","demo.pill":"جرّبها قبل الدفع: تجربة عند باب بيتك","demoB.eyebrow":"لست متأكداً؟","demoB.title":"جرّبها قبل أن تدفع.","demoB.text":"اطلب أونلاين واختر «تجربة قبل الشراء». عند التوصيل نحضّر لك إسبريسو حقيقي أمامك، وتدفع فقط إذا أعجبتك.","demoB.s1":"اختر آلتك وأكمل الطلب.","demoB.s2":"اختر «تجربة قبل الشراء» عند الطلب.","demoB.s3":"نحضّر القهوة أمامك، وتدفع فقط إذا أعجبتك.","demoB.cta":"اختر آلتك","demo.d":"نحضّر لك قهوة أمامك عند التوصيل، وتدفع فقط إذا أعجبتك.","pd.demo":"مو متأكد؟ اختر «تجربة قبل الشراء» عند الطلب.",
+    "form.notes":"ملاحظات، اختياري","demo.t":"تجربة قبل الشراء","demo.pill":"جرّبها قبل أن تدفع","demoB.eyebrow":"لست متأكداً؟","demoB.title":"جرّبها قبل أن تدفع.","demoB.text":"اطلب أونلاين واختر «تجربة قبل الشراء». عند التوصيل نحضّر لك إسبريسو حقيقي أمامك، وتدفع فقط إذا أعجبتك.","demoB.s1":"اختر آلتك وأكمل الطلب.","demoB.s2":"اختر «تجربة قبل الشراء» عند الطلب.","demoB.s3":"نحضّر القهوة أمامك، وتدفع فقط إذا أعجبتك.","demoB.cta":"اختر آلتك","demo.d":"نحضّر لك قهوة أمامك عند التوصيل، وتدفع فقط إذا أعجبتك.","pd.demo":"مو متأكد؟ اختر «تجربة قبل الشراء» عند الطلب.",
     "loc.label":"تحديد الموقع، اختياري","loc.gps":"استخدم موقعي الحالي","loc.pick":"اختر على الخريطة","loc.clear":"إزالة",
     "loc.saved":"تم حفظ الموقع. يمكنك تحريك العلامة أو الضغط على الخريطة لتعديله.","loc.savednomap":"تم حفظ موقعك الحالي.",
     "loc.wait":"جارٍ تحديد موقعك...","loc.denied":"تعذّر الوصول إلى موقعك. اختر الموقع على الخريطة أو اكتب العنوان.",
@@ -1705,7 +1706,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "pick.elite.t":"I want everything, pour over included.","pick.elite.d":"25 bar, digital display and a pour over filter. Four ways to brew, and the lid closes the cup so you can take your coffee with you.",
     "pick.view":"View","bar.from":"From",
     "trust.delivery":"Free delivery across Qatar, same day to three days.",
-    "form.submit":"Place order","demo.t":"Demo before you buy","demo.pill":"Try it before you pay: demo at your door","demoB.eyebrow":"Not sure yet?","demoB.title":"Try it before you pay.","demoB.text":"Order online and tick \u201cDemo before you buy\u201d. At delivery we brew a real espresso in front of you. You pay only if you love it.","demoB.s1":"Choose your machine and place your order.","demoB.s2":"Tick \u201cDemo before you buy\u201d at checkout.","demoB.s3":"We brew in front of you. You pay only if you love it.","demoB.cta":"Choose your machine","demo.d":"We brew a coffee in front of you at delivery. You pay only if you like it.","pd.demo":"Not sure? Choose \u201cDemo before you buy\u201d at checkout.",
+    "form.submit":"Place order","demo.t":"Demo before you buy","demo.pill":"Try it before you pay","demoB.eyebrow":"Not sure yet?","demoB.title":"Try it before you pay.","demoB.text":"Order online and tick \u201cDemo before you buy\u201d. At delivery we brew a real espresso in front of you. You pay only if you love it.","demoB.s1":"Choose your machine and place your order.","demoB.s2":"Tick \u201cDemo before you buy\u201d at checkout.","demoB.s3":"We brew in front of you. You pay only if you love it.","demoB.cta":"Choose your machine","demo.d":"We brew a coffee in front of you at delivery. You pay only if you like it.","pd.demo":"Not sure? Choose \u201cDemo before you buy\u201d at checkout.",
     "done.eyebrow":"Order received",
     "done.offline.t":"One more step","done.offline":"Our system could not save your order. Tap the WhatsApp button below to send it to us, and we will confirm it there.",
     "done.note":"We will call or message you to confirm before dispatch. You can also send us a copy on WhatsApp if you prefer."
