@@ -666,6 +666,7 @@ body.ar .brand span{letter-spacing:.18em}
 /* ---------- in the box ---------- */
 .pouch-opt{display:flex;align-items:center;gap:14px;border:1px solid var(--line);padding:12px 14px;margin:-8px 0 26px;cursor:pointer;transition:border-color .3s}
 .pouch-opt:has(input:checked){border-color:var(--gold)}
+.demo-opt{margin:0 0 18px}
 .pouch-opt input{width:18px;height:18px;accent-color:var(--gold);flex:none}
 .pouch-opt img{width:56px;height:56px;object-fit:cover;flex:none;background:#fff}
 .pouch-opt span{flex:1;display:flex;flex-direction:column;gap:4px}
@@ -1328,6 +1329,10 @@ body.no-scroll .buybar{transform:translateY(110%)}
         <textarea id="address" name="address" placeholder="Building, street, zone" data-i18n-ph="ph.address" required></textarea>
         <span class="err" data-i18n="err.address">Please enter the delivery address.</span>
       </div>
+      <label class="pouch-opt demo-opt" id="demoRow">
+        <input type="checkbox" id="demoReq" name="demoReq">
+        <span><b data-i18n="demo.t">Demo before you buy</b><small data-i18n="demo.d">We brew a coffee in front of you at delivery. You pay only if you like it.</small></span>
+      </label>
       <div class="field">
         <label class="field-label" for="notes" data-i18n="form.notes">Notes, optional</label>
         <textarea id="notes" name="notes"></textarea>
@@ -1466,7 +1471,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "form.phone":"رقم الهاتف",
     "form.area":"المنطقة",
     "form.address":"العنوان",
-    "form.notes":"ملاحظات، اختياري",
+    "form.notes":"ملاحظات، اختياري","demo.t":"تجربة قبل الشراء","demo.d":"نحضّر لك قهوة أمامك عند التوصيل، وتدفع فقط إذا أعجبتك.","pd.demo":"مو متأكد؟ اختر «تجربة قبل الشراء» عند الطلب.",
     "loc.label":"تحديد الموقع، اختياري","loc.gps":"استخدم موقعي الحالي","loc.pick":"اختر على الخريطة","loc.clear":"إزالة",
     "loc.saved":"تم حفظ الموقع. يمكنك تحريك العلامة أو الضغط على الخريطة لتعديله.","loc.savednomap":"تم حفظ موقعك الحالي.",
     "loc.wait":"جارٍ تحديد موقعك...","loc.denied":"تعذّر الوصول إلى موقعك. اختر الموقع على الخريطة أو اكتب العنوان.",
@@ -1672,7 +1677,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     "pick.elite.t":"I want everything, pour over included.","pick.elite.d":"25 bar, digital display and a pour over filter. Four ways to brew, and the lid closes the cup so you can take your coffee with you.",
     "pick.view":"View","bar.from":"From",
     "trust.delivery":"Free delivery across Qatar, same day to three days.",
-    "form.submit":"Place order",
+    "form.submit":"Place order","demo.t":"Demo before you buy","demo.d":"We brew a coffee in front of you at delivery. You pay only if you like it.","pd.demo":"Not sure? Choose \u201cDemo before you buy\u201d at checkout.",
     "done.eyebrow":"Order received",
     "done.offline.t":"One more step","done.offline":"Our system could not save your order. Tap the WhatsApp button below to send it to us, and we will confirm it there.",
     "done.note":"We will call or message you to confirm before dispatch. You can also send us a copy on WhatsApp if you prefer."
@@ -2134,7 +2139,8 @@ body.no-scroll .buybar{transform:translateY(110%)}
     var foot=document.getElementById("pdFoot");
     foot.innerHTML='<button class="btn btn-solid btn-block" id="pdAdd">'+T("pd.add")+'</button>'+
       '<a class="pd-wa" id="pdWa" target="_blank" rel="noopener" href="https://wa.me/'+CFG.WHATSAPP+'">'+WA_ICON+'<span></span></a>'+
-      '<p class="note" style="margin-top:6px;text-align:center" id="pdNote">'+T("pd.note")+'</p>';
+      '<p class="note" style="margin-top:6px;text-align:center" id="pdNote">'+T("pd.note")+'</p>'+
+      '<p class="note" style="margin-top:4px;text-align:center;color:var(--gold)">'+T("pd.demo")+'</p>';
 
     var qi=document.getElementById("pdQty");
     var add=document.getElementById("pdAdd");
@@ -2437,7 +2443,7 @@ body.no-scroll .buybar{transform:translateY(110%)}
     var payload={
       p_name:f.fullName.value.trim(), p_phone:f.phone.value.trim(),
       p_area:f.area.value.trim(), p_address:f.address.value.trim() + (window.CI_LOC && CI_LOC.link() ? "\nLocation: " + CI_LOC.link() : ""),
-      p_notes:f.notes.value.trim(),
+      p_notes:((f.demoReq && f.demoReq.checked) ? "DEMO REQUESTED: brew in front of the customer, pay only if satisfied" + (f.notes.value.trim() ? "\n" : "") : "") + f.notes.value.trim(),
       p_items: isPre
         ? [{id:PRE.id, color:PRE.color, qty:PRE.qty}].concat(PRE.pouch ? [{id:ACCESSORY, color:PRE.pouch.color, qty:PRE.pouch.qty}] : [])
         : Bag.read().map(function(l){ return {id:l.id,color:l.color,qty:l.qty}; })
